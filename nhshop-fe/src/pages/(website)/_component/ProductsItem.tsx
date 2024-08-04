@@ -5,9 +5,9 @@ import { IProduct } from "@/common/types/IProduct";
 import instance from "@/configs/axios";
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-
+import { AiTwotoneEye, AiOutlineHeart } from "react-icons/ai";
 type ProductsItemProps = {
     product: IProduct;
 };
@@ -82,19 +82,22 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
     return (
         <>
             {contextHolder}
-            <div className="flex flex-col justify-between rounded-3xl border cursor-pointer mx-3 hover:hover:border-gray-800 shadow-2xl transition hover:border-pink-500/10 hover:shadow-pink-500/40">
+            <div className="flex flex-col justify-between rounded-3xl border cursor-pointer mx-3 ">
                 {/* <!-- img --> */}
-                <Link to={`/products/${product._id}`}>
-                    <div className="relative group w-full h-[240px] bg-[#F4F4F4] rounded-3xl grid place-items-center">
-                        <span className="absolute -right-px -top-px rounded-bl-3xl rounded-tr-3xl bg-rose-600 px-2 py-2 font-medium uppercase text-white">
-                            Save 10%
-                        </span>
-                        <img className="h-[200px]" src={product.img} alt="" />
-                        <button className="absolute scale-0 group-hover:scale-100 group-hover:translate-y-0  duration-200 lg:w-[152px] mb:w-[136px] lg:h-[64px]  mb:h-[48px] rounded-[100px] border-none bg-[#1A1E2630] text-sm text-white backdrop-blur-md">
-                            Xem sản phẩm
-                        </button>
+
+                <div className="relative group w-full h-[240px] bg-[#F4F4F4] rounded-3xl grid place-items-center">
+                    <span className="absolute -right-px -top-px rounded-bl-3xl rounded-tr-3xl bg-rose-600 px-2 py-2 font-medium uppercase text-white">
+                        Save 10%
+                    </span>
+                    <img className="h-[200px]" src={product.img} alt="" />
+                    <div className="absolute scale-0 group-hover:scale-100 flex gap-2 group-hover:translate-y-0  duration-200 rounded-[100px] border-none text-sm ">
+                        <Link to={`/products/${product._id}`}>
+                            <AiTwotoneEye className="size-9 text-white backdrop-blur-md rounded-3xl" />{" "}
+                        </Link>
+                        <AiOutlineHeart className="size-9 text-white backdrop-blur-md rounded-3xl" />{" "}
                     </div>
-                </Link>
+                </div>
+
                 {/* <!-- about --> */}
                 <div className="w-full h-full flex flex-col justify-between items-center">
                     <strong className="uppercase font-light text-center text-[#9D9EA2]">

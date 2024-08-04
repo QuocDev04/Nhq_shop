@@ -9,6 +9,8 @@ import {
     Input,
     InputNumber,
     message,
+    Select,
+    SelectProps,
     Skeleton,
     Upload,
     UploadFile,
@@ -26,6 +28,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 const EditPage = () => {
+    const options: SelectProps["options"] = [];
     const { id } = useParams();
     const [value, setValue] = useState("");
     const [messageApi, contextHolder] = message.useMessage();
@@ -189,9 +192,6 @@ const EditPage = () => {
                             product?.data?.category?.map(
                                 (category: Category) => category._id,
                             ) || [],
-                        // product?.data?.category?.map(
-                        //     (cat: Category) => cat._id,
-                        // ) || [],
                     }}
                 >
                     <div className="grid grid-cols-[auto,300px]">
@@ -420,7 +420,13 @@ const EditPage = () => {
                                 />
                             </Form.Item>
                             <Form.Item label="Thẻ" name="tags">
-                                <Input disabled={isPending} />
+                                
+                                <Select
+                                    disabled={isPending}
+                                    mode="tags"
+                                    style={{ width: "100%" }}
+                                    options={options}
+                                />
                             </Form.Item>
                         </div>
                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

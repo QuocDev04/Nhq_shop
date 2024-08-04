@@ -399,6 +399,13 @@ const ProductPage = () => {
             title: "Tags",
             dataIndex: "tags",
             key: "tags",
+            render: (tags: string[]) => (
+                <div>
+                    {tags.map((tag, index) => (
+                        <div key={index}>{index+1}. {tag}</div>
+                    ))}
+                </div>
+            ),
         },
         {
             title: "Tình trạng",
@@ -423,7 +430,7 @@ const ProductPage = () => {
             key: "category",
             render: (_: any, product: IProduct) =>
                 product.category?.map((category: Category, index: number) => (
-                    <div key={index}>{category.name}</div>
+                    <div key={index}>{index+1}. {category.name}</div>
                 )),
         },
         {
