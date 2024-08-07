@@ -63,7 +63,7 @@ export const signin = async (req, res) => {
       role: user.role,
       name: user.name,
       email:user.email,
-      userId:user.id
+      userId:user.id,
     });
 
   } catch (error) {

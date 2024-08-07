@@ -7,6 +7,7 @@ import routerAuth from "./routers/auth";
 import routerProduct from "./routers/product";
 import routerCategory from "./routers/category";
 import cartRouter from "./routers/cart";
+import favouriteRouter from "./routers/favourite";
 
 const app = express();
 
@@ -29,4 +30,5 @@ connectDB(`mongodb://localhost:27017/Shop_Top_Shelf`);
 app.use("/api/", routerProduct);
 app.use("/api/",routerCategory)
 app.use("/api/", cartRouter);
+app.use("/api/", favouriteRouter);
 export const viteNodeApp = app;
