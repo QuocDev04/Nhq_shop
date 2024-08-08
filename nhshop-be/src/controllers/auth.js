@@ -5,7 +5,7 @@ import bcryptjs from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import BlacklistedToken from "../models/black-listed-token";
 const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, "123456", { expiresIn: "7d" });
+  return jwt.sign({ userId }, "123456", { expiresIn: "30d" });
 };
 const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, "123456", { expiresIn: "1m" });

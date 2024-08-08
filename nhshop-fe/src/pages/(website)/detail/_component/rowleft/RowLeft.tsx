@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Image, Space } from "antd";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const RowLeft = () => {
@@ -22,13 +22,13 @@ const RowLeft = () => {
     });
 
     const gallerys = product?.data?.gallery;
-    const [img, setImg] = useState(gallerys ? gallerys[0] : "");
+    // const [img, setImg] = useState(gallerys ? gallerys[0] : "");
 
-    useEffect(() => {
-        if (gallerys && gallerys.length > 0) {
-            setImg(gallerys[0]);
-        }
-    }, [gallerys]);
+    // useEffect(() => {
+    //     if (gallerys && gallerys.length > 0) {
+    //         setImg(gallerys[0]);
+    //     }
+    // }, [gallerys]);
     const onDownload = (imgUrl: string) => {
         fetch(imgUrl)
             .then((response) => response.blob())
@@ -52,7 +52,7 @@ const RowLeft = () => {
                     <div className="relative cursor-pointer w-full lg:h-[520px] mb:h-[342px] bg-white border grid place-items-center mb:rounded-xl lg:rounded-3xl">
                         <Image
                             height={515}
-                            src={img}
+                            src={product?.data.img}
                             preview={{
                                 toolbarRender: (
                                     _,
@@ -121,7 +121,7 @@ const RowLeft = () => {
                                     key={index}
                                     src={item}
                                     alt=""
-                                    onClick={() => setImg(item)}
+                                    // onClick={() => setImg(item)}
                                     className="hover:scale-110 border-2 h-[100px] w-[120px] rounded-2xl cursor-pointer"
                                 />
                             ))}

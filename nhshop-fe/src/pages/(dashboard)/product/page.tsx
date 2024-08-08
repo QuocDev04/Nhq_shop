@@ -237,10 +237,6 @@
 // };
 // export default ProductPage;
 
-
-
-
-
 //useQuery
 import {
     AiOutlinePlusCircle,
@@ -250,29 +246,20 @@ import {
 import { Link } from "react-router-dom";
 import { Category } from "@/common/types/Category";
 import { IProduct } from "@/common/types/IProduct";
-import { delProduct, getAllProduct } from "@/services/product";
+import { delProduct } from "@/services/product";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-    Button,
-    message,
-    Popconfirm,
-    Table,
-    TableColumnsType,
-} from "antd";
-import { useState } from "react";
-import Search from "antd/es/transfer/search";
+import { Button, message, Popconfirm, Table, TableColumnsType } from "antd";
+
+import instance from "@/configs/axios";
 
 const ProductPage = () => {
-    const removeParagraphTags = (htmlString: string) => {
-        return htmlString.replace(/<\/?p>/g, "");
-    };
-    const [searchText, setSearchText] = useState("");
     const [messageApi, contextHolder] = message.useMessage();
-    const { data } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ["product"],
-        queryFn: () => getAllProduct(),
+        queryFn: () => instance.get(`/product`),
     });
+    console.log(data?.data);
 
     const queryClient = useQueryClient();
     const { mutate } = useMutation({
@@ -325,9 +312,7 @@ const ProductPage = () => {
     };
 
     // Thêm state cho tìm kiếm
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchText(e.target.value);
-    };
+
     const columns: TableColumnsType = [
         {
             title: "Tên Sản Phẩm",
@@ -337,10 +322,7 @@ const ProductPage = () => {
             fixed: "left",
             filterSearch: true,
             filters: data ? createFilter(data?.data) : [],
-            onFilter: (value: string, product: IProduct) =>
-                product.name.toLowerCase().includes(value.toLowerCase()),
-            sorter: (a: IProduct, b: IProduct) => a.name.localeCompare(b.name),
-            sortDirections: ["ascend", "descend"],
+          
         },
         {
             title: "Giá",
@@ -402,7 +384,9 @@ const ProductPage = () => {
             render: (tags: string[]) => (
                 <div>
                     {tags.map((tag, index) => (
-                        <div key={index}>{index+1}. {tag}</div>
+                        <div key={index}>
+                            {index + 1}. {tag}
+                        </div>
                     ))}
                 </div>
             ),
@@ -430,20 +414,16 @@ const ProductPage = () => {
             key: "category",
             render: (_: any, product: IProduct) =>
                 product.category?.map((category: Category, index: number) => (
-                    <div key={index}>{index+1}. {category.name}</div>
+                    <div key={index}>
+                        {index + 1}. {category.name}
+                    </div>
                 )),
         },
         {
             title: "Mô tả",
             dataIndex: "description",
             key: "description",
-            render: (text: string) => (
-                <div
-                    dangerouslySetInnerHTML={{
-                        __html: removeParagraphTags(text),
-                    }}
-                />
-            ),
+       
         },
         {
             title: "Hành động",
@@ -480,10 +460,8 @@ const ProductPage = () => {
         },
     ];
 
-    const filteredDataSource = dataSource?.filter((product: IProduct) =>
-        product.name.toLowerCase().includes(searchText.toLowerCase()),
-    );
 
+    if (isLoading) return <div>shdfk</div>;
     return (
         <div>
             <div className="flex items-center justify-between">
@@ -497,15 +475,10 @@ const ProductPage = () => {
                 </Link>
             </div>
             {contextHolder}
-            <Search
-                enterButton
-                placeholder="Tìm kiếm sản phẩm"
-                value={searchText}
-                onChange={handleSearch}  
-            />
+
             <Table
                 columns={columns}
-                dataSource={filteredDataSource}
+                dataSource={dataSource}
                 pagination={{ pageSize: 50 }}
                 scroll={{ x: 1900, y: 500 }}
                 expandable={{
@@ -519,4 +492,3 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
-

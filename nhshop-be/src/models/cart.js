@@ -1,31 +1,30 @@
 import mongoose, { Schema } from "mongoose";
 
 const cartItemSchema = new Schema(
-    {
-  productId: {
-    type: Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+  {
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    price: {
+      type: Number,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    // Tính giá sau khi áp dụng khuyến mãi (nếu có)
+    finalPrice: {
+      type: Number,
+    },
   },
-  quantity: {
-    type: Number,
-    required: true,
-    min:1,
-  },
-  price:{
-    type:Number,
-  },
-  discount:{
-    type:Number,
-    default:0
-  },
-  // Tính giá sau khi áp dụng khuyến mãi (nếu có)
-  finalPrice:{
-    type:Number,
-  }
-},{
-    _id:false
-} // Không tạo _id cho môĩ item trong mảng products
+  { _id: false } // Không tạo _id cho mỗi item trong mảng productshông tạo _id cho môĩ item trong mảng products
 );
 
 const cartSchema = new Schema(

@@ -2,12 +2,12 @@ import instance from "@/configs/axios";
 import { useQuery } from "@tanstack/react-query";
 import ProductList from "../../_component/ProductsList";
 
-const Recenty = ()=>{
-    const {data:product,isLoading} = useQuery({
-        queryKey:['product'],
-        queryFn:()=> instance.get('/product')
-    })
-    if(isLoading) return <div>bdv</div>
+const Recenty = () => {
+    const { data: product, isLoading } = useQuery({
+        queryKey: ["product"],
+        queryFn: () => instance.get("/product"),
+    });
+    if (isLoading) return <div>bdv</div>;
     return (
         <div>
             <div className="lg:w-[1100px] mx-auto sm:w-[95vw] mb:w-[342px] flex flex-col lg:py-24 mb:py-7">
@@ -56,12 +56,12 @@ const Recenty = ()=>{
                     </div>
                 </div>
 
-                <div className="grid lg:py-16 lg:mt-[30px] lg:grid-cols-[276px_276px_276px_276px] md:grid-cols-3 sm:grid-cols-2  mb:grid-cols-1 border-t justify-between lg:gap-y-8 mb:gap-y-[29px] mb:pt-10">
+                <div className="grid lg:py-16 lg:mt-[30px] lg:grid-cols-[250px_250px_250px_250px] md:grid-cols-3 sm:grid-cols-2  mb:grid-cols-1 border-t justify-between lg:gap-y-8 mb:gap-y-[29px] mb:pt-10">
                     {/* <!-- item 1 --> */}
                     <ProductList products={product?.data} />
                 </div>
             </div>
         </div>
     );
-}
-export default Recenty
+};
+export default Recenty;

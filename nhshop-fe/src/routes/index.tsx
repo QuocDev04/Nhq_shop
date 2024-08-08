@@ -13,6 +13,7 @@ import ProductAdmin from "@/pages/(dashboard)/product/page";
 import CartPage from "@/pages/(website)/cart/page";
 import CheckOutPage from "@/pages/(website)/checkout/page";
 import DetailPage from "@/pages/(website)/detail/page";
+import FavouritePages from "@/pages/(website)/favourite/pages";
 import HomePage from "@/pages/(website)/home/page";
 import LayoutWebsite from "@/pages/(website)/layout";
 import Product from "@/pages/(website)/product/page";
@@ -29,6 +30,7 @@ const Router = () => {
                     <Route path="products/:id" element={<DetailPage />} />
                     <Route path="cart" element={<CartPage />} />
                     <Route path="order" element={<CheckOutPage />} />
+                    <Route path="favourite" element={<FavouritePages />} />
                 </Route>
                 <Route path="admin" element={<LayoutAdmin />}>
                     <Route index element={<Dashboard />} />

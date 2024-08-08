@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Empty, notification, Popconfirm } from "antd";
+import { Empty, Image, notification, Popconfirm } from "antd";
 import { AiOutlinePlusCircle, AiOutlineMinusCircle } from "react-icons/ai";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import instance from "@/configs/axios";
-import { useContext } from "react";
-import { cartCT } from "@/common/context/cartContext";
 
 interface Product {
     productId: string;
@@ -28,7 +26,7 @@ export interface Cart {
 }
 
 const TableCart = () => {
-    const { setCart } = useContext(cartCT);
+  
     const [api, contextHolder] = notification.useNotification();
     const userId = localStorage.getItem("userId");
     const queryClient = useQueryClient();
@@ -80,7 +78,7 @@ const TableCart = () => {
         },
         onSuccess: (data) => {
             data && data.cart;
-            setCart(data.cart);
+           
             openNotification(false)(
                 "success",
                 "Sản phẩm đã được xóa từ giỏ hàng.",
@@ -110,8 +108,8 @@ const TableCart = () => {
            });
            return data.cart;
         },
-        onSuccess: (data) => {
-            setCart(data);
+        onSuccess: () => {
+           
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
@@ -129,8 +127,8 @@ const TableCart = () => {
            });
            return data.cart;
         },
-        onSuccess: (data) => {
-            setCart(data);
+        onSuccess: () => {
+           
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
@@ -155,8 +153,8 @@ const TableCart = () => {
             });
             return data.cart;
         },
-        onSuccess: (data) => {
-            setCart(data);
+        onSuccess: () => {
+            
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
@@ -196,12 +194,11 @@ const TableCart = () => {
                                             className="flex items-center gap-4"
                                             key={product.productId}
                                         >
-                                            <img
-                                                src={product.img}
+                                            <Image
+                                            src={product.img}
                                                 alt={product.name}
-                                                className="w-20 rounded"
+                                                style={{height:"170px"}}
                                             />
-
                                             <div>
                                                 <h3 className="text-xl text-gray-900">
                                                     {product.name}
