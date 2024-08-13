@@ -5,7 +5,7 @@ const router = Router();
 
 router.post("/comment", postComment);
 router.get("/comment", getAllComment);
-router.get("/comment/:id", getIdComment);
+router.get("/comment/:productId", getIdComment);
 router.put("/comment/:id", putComment);
 router.delete("/comment/:id", delId);
 

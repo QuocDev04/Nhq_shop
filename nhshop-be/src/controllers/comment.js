@@ -53,8 +53,9 @@ export const getAllComment = async (req, res) => {
 };
 
 export const getIdComment = async (req, res) => {
+  const {productId} = req.params
   try {
-    const getId = await Comment.findById(req.params.id, req.body);
+    const getId = await Comment.find({productId});
     res.json(getId);
   } catch (error) {
     console.error("Error adding comment:", error);

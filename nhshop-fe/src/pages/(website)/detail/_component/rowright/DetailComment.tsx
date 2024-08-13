@@ -34,21 +34,20 @@ const DeatilComment = () => {
                 pauseOnHover,
             });
         };
+    const { id: productId } = useParams();
     const {
         data: comment,
         isLoading,
         isError,
     } = useQuery({
-        queryKey: ["comment"],
-        queryFn: () => instance.get("/comment"),
+        queryKey: ["comment", productId],
+        queryFn: () => instance.get(`/comment/${productId}`),
     });
 
     const { data: user } = useQuery({
         queryKey: ["user", userId],
         queryFn: () => instance.get(`/user/${userId}`),
     });
-
-    const { id: productId } = useParams();
 
     const { mutate: del } = useMutation({
         mutationFn: async (id: string) => {
@@ -158,7 +157,10 @@ const DeatilComment = () => {
                             ) : (
                                 <div>
                                     {comment?.data.map((item: any) => (
-                                        <div className=" flex items-start space-x-3 my-5 ">
+                                        <div
+                                            className=" flex items-start space-x-3 my-5 "
+                                            key={item.productId}
+                                        >
                                             <div className="flex flex-col bg-violet-100 bg-opacity-50 rounded-3xl px-3 py-4 w-96 relative">
                                                 <p className="mb-2 mx-2 text-xs font-semibold flex">
                                                     <img
