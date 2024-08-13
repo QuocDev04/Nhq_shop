@@ -3,10 +3,11 @@ import { useState } from "react";
 import instance from "@/configs/axios";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { Empty } from "antd";
 
 const Row4 = () => {
     const { id } = useParams();
-    const { data: product } = useQuery({
+    const { data: product,isLoading } = useQuery({
         queryKey: ["product", id],
         queryFn: () => instance.get(`/product/${id}`),
     });
@@ -34,7 +35,12 @@ const Row4 = () => {
         product?.data.attributes.filter((color: any) =>
             color.name.toLowerCase().includes("color"),
         ) || [];
-
+if(isLoading) return (
+    <div>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} imageStyle={{ height: 60 }}/>
+           
+    </div>
+);
     return (
         <div>
             <div className="flex flex-col lg:gap-y-[22px] border-t lg:mt-[5px] lg:py-5 mb:py-6">
