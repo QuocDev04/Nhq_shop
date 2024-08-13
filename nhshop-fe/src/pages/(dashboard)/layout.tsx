@@ -43,7 +43,12 @@ const items: MenuItem[] = [
             "3-2",
         ),
     ]),
-    getItem("Người dùng", "4", <UserOutlined />, [getItem("Tom", "4-1")]),
+    getItem("Người dùng", "4", <UserOutlined />, [
+        getItem(
+            <NavLink to={"/admin/users"}>Danh Sách</NavLink>,
+            "4-1",
+        ),
+    ]),
     getItem("Team", "sub2", <TeamOutlined />, [
         getItem("Team 1", "6"),
         getItem("Team 2", "8"),

@@ -10,20 +10,29 @@ import { useQuery } from "@tanstack/react-query";
 import instance from "@/configs/axios";
 import ProductsItems from "../../_component/ProductsItem";
 import { IProduct } from "@/common/types/IProduct";
+import { Empty } from "antd";
 
 const Selling = () => {
     const { data, isLoading } = useQuery({
         queryKey: ["product"],
         queryFn: () => instance.get(`/product`),
     });
-    if (isLoading) return <div>shs</div>;
+    if (isLoading) return (
+        <div>
+            {" "}
+            <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                imageStyle={{ height: 60 }}
+            />
+        </div>
+    );
     return (
         <div>
             <div className="bg-[#F2F6F4] w-full lg:rounded-2xl lg:pt[25px] lg:pb-6 lg:px-8 pt-[22px] pb-4">
                 <strong className="lg:text-2xl mb:text-lg lg:tracking-[-0.5px] mb:mx-12 lg:mx-0 font-medium">
                     Top Selling
                 </strong>
-                <div className="lg:w-[1000px] mb:w-[355px] sm:w-[640px] md:w-[768px] xl:w-[900px] 2xl:w-[800px] mx-auto snap-x duration-300 scroll-smooth grid grid-flow-col *:lg:w-[850px] *:mb:w-[240px] lg:pt-[27px] mb:pt-6  lg:gap-x-[32px] gap-x-6">
+                <div className="lg:w-[1000px] mb:w-[355px] sm:w-[640px] md:w-[768px] xl:w-[00px] 2xl:w-[900px] mx-auto snap-x duration-300 scroll-smooth grid grid-flow-col *:lg:w-[850px] *:mb:w-[240px] lg:pt-[27px] mb:pt-6  lg:gap-x-[32px] gap-x-6">
                     <Swiper
                         slidesPerView={3}
                         modules={[Navigation]}

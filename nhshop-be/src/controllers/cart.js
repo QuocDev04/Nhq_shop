@@ -139,17 +139,7 @@ export const addItemToCart = async (req, res) => {
       0
     );
 
-    // Đảm bảo các trường là số hợp lệ
-    cart.totalQuantity = Number.isFinite(cart.totalQuantity)
-      ? cart.totalQuantity
-      : 0;
-    cart.totalPrice = Number.isFinite(cart.totalPrice) ? cart.totalPrice : 0;
-    cart.totalDiscount = Number.isFinite(cart.totalDiscount)
-      ? cart.totalDiscount
-      : 0;
-    cart.finalTotalPrice = Number.isFinite(cart.finalTotalPrice)
-      ? cart.finalTotalPrice
-      : 0;
+
 
     await cart.save();
     return res.status(StatusCodes.OK).json({ cart });
@@ -193,17 +183,7 @@ export const removeFromCart = async (req, res) => {
       0
     );
 
-    // Đảm bảo các trường là số hợp lệ
-    cart.totalQuantity = Number.isFinite(cart.totalQuantity)
-      ? cart.totalQuantity
-      : 0;
-    cart.totalPrice = Number.isFinite(cart.totalPrice) ? cart.totalPrice : 0;
-    cart.totalDiscount = Number.isFinite(cart.totalDiscount)
-      ? cart.totalDiscount
-      : 0;
-    cart.finalTotalPrice = Number.isFinite(cart.finalTotalPrice)
-      ? cart.finalTotalPrice
-      : 0;
+
     await cart.save();
     return res.status(StatusCodes.OK).json({ cart });
   } catch (error) {
@@ -251,17 +231,7 @@ export const updateProductQuantity = async (req, res) => {
       0
     );
 
-    // Đảm bảo các trường là số hợp lệ
-    cart.totalQuantity = Number.isFinite(cart.totalQuantity)
-      ? cart.totalQuantity
-      : 0;
-    cart.totalPrice = Number.isFinite(cart.totalPrice) ? cart.totalPrice : 0;
-    cart.totalDiscount = Number.isFinite(cart.totalDiscount)
-      ? cart.totalDiscount
-      : 0;
-    cart.finalTotalPrice = Number.isFinite(cart.finalTotalPrice)
-      ? cart.finalTotalPrice
-      : 0;
+
     await cart.save();
     return res.status(StatusCodes.OK).json({ cart });
   } catch (error) {}
@@ -304,17 +274,7 @@ export const increaseProductQuantity = async (req, res) => {
       0
     );
 
-    // Đảm bảo các trường là số hợp lệ
-    cart.totalQuantity = Number.isFinite(cart.totalQuantity)
-      ? cart.totalQuantity
-      : 0;
-    cart.totalPrice = Number.isFinite(cart.totalPrice) ? cart.totalPrice : 0;
-    cart.totalDiscount = Number.isFinite(cart.totalDiscount)
-      ? cart.totalDiscount
-      : 0;
-    cart.finalTotalPrice = Number.isFinite(cart.finalTotalPrice)
-      ? cart.finalTotalPrice
-      : 0;
+
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {
@@ -366,17 +326,7 @@ export const decreaseProductQuantity = async (req, res) => {
       0
     );
 
-    // Đảm bảo các trường là số hợp lệ
-    cart.totalQuantity = Number.isFinite(cart.totalQuantity)
-      ? cart.totalQuantity
-      : 0;
-    cart.totalPrice = Number.isFinite(cart.totalPrice) ? cart.totalPrice : 0;
-    cart.totalDiscount = Number.isFinite(cart.totalDiscount)
-      ? cart.totalDiscount
-      : 0;
-    cart.finalTotalPrice = Number.isFinite(cart.finalTotalPrice)
-      ? cart.finalTotalPrice
-      : 0;
+
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {

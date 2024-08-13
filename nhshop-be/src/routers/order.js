@@ -1,9 +1,9 @@
-// import { Router } from "express";
-// import { createOrder, getOrderById, getOrders } from "../controllers/order";
+import { Router } from "express";
+import { createOrder, getOrders, getOrderById } from "../controllers/order";
 
-// const router = Router();
+const router = Router();
 
-// router.post("/orders", createOrder);
-// router.get("/orders", getOrders);
-// router.get("/orders/:userId/:orderId", getOrderById);
-// export default router;
+router.post("/orders", createOrder);
+router.get("/orders", getOrders);
+router.get("/orders/:userId/:_id", getOrderById);
+export default router;

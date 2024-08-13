@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
@@ -27,7 +25,7 @@ const productSchema = new mongoose.Schema(
       type: String,
     },
     gallery: {
-      type: [String], 
+      type: [String],
     },
     discount: {
       type: Number,
@@ -41,6 +39,13 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
     },
     tags: [String],
+    // attributes: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Attribute",
+    //     required: true,
+    //   },
+    // ],
   },
   {
     timestamps: true,

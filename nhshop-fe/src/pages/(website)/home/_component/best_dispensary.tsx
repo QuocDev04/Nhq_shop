@@ -11,11 +11,20 @@ import "swiper/css/navigation";
 
 // import required modules
 import { Navigation } from "swiper/modules";
+import { Empty } from "antd";
 const Best_Dispensary = () => {
-    const { data } = useQuery({
+    const { data , isLoading} = useQuery({
         queryKey: ["product"],
         queryFn: () => instance.get(`/product`),
     });
+    if(isLoading) return (
+        <div>
+            <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                imageStyle={{ height: 60 }}
+            />
+        </div>
+    );
     return (
         <div>
             <div className=" w-full text-center lg:py-[120px]">

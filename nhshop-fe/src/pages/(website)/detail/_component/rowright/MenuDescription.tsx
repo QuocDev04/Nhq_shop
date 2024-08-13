@@ -1,18 +1,32 @@
+import { Tabs, TabsProps } from "antd";
+import TextDescription from "./TextDescription";
+import DeatilComment from "./DetailComment";
+
 const MenuDescription = () => {
+const items: TabsProps["items"] = [
+    {
+        key: "1",
+        label: "Mô tả sản phẩm",
+        children: (
+            <TextDescription/>
+        ),
+    },
+    {
+        key: "2",
+        label: "Đánh giá về sản phẩm",
+        children: (
+            <DeatilComment/>
+        ),
+    },
+    {
+        key: "3",
+        label: "Tab 3",
+        children: "Content of Tab Pane 3",
+    },
+];
     return (
         <div>
-            <ul className="flex items-center justify-between border-b lg:pb-6 mb:pb-5 *:lg:w-[197.33px] *:mb:w-[106px] *:lg:py-2.5 *:mb:py-[7px] *:rounded-[100px] *:border *:place-items-center *:lg:text-base *:mb:text-xs">
-                <button className="btn_show_description grid hover:border-[#05422C] border-[#05422C] text-[#05422C] hover:bg-[#F2F6F4] bg-[#F2F6F4]">
-                    Description
-                </button>
-                <button className="btn_show_review flex items-center justify-center gap-x-1 hover:border-[#05422C] hover:text-[#05422C] hover:bg-[#F2F6F4]">
-                    Reviews
-                    <p>(350)</p>
-                </button>
-                <button className="btn_show_refer grid hover:border-[#05422C] hover:text-[#05422C] hover:bg-[#F2F6F4]">
-                    Refer a Friend
-                </button>
-            </ul>
+            <Tabs defaultActiveKey="1" items={items}/>
         </div>
     );
 }

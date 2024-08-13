@@ -51,7 +51,6 @@ const RowLeft = () => {
                 <div className="">
                     <div className="relative cursor-pointer w-full lg:h-[520px] mb:h-[342px] bg-white border grid place-items-center mb:rounded-xl lg:rounded-3xl">
                         <Image
-                            height={515}
                             src={product?.data.img}
                             preview={{
                                 toolbarRender: (

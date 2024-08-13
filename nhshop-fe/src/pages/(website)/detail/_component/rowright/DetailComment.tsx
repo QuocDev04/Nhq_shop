@@ -1,119 +1,295 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import instance from "@/configs/axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    Button,
+    Empty,
+    Form,
+    FormProps,
+    Input,
+    Modal,
+    notification,
+    Popover,
+} from "antd";
+import { useState } from "react";
+import { AiOutlineEllipsis, AiOutlineSend } from "react-icons/ai";
+import { Link, useNavigate, useParams } from "react-router-dom";
+type FieldType = {
+    text: string;
+};
 const DeatilComment = () => {
+    const navigate = useNavigate();
+    const [form] = Form.useForm();
+    const userId = localStorage.getItem("userId");
+    const [api, contextHolder] = notification.useNotification();
+    const queryClient = useQueryClient();
+    const openNotification =
+        (pauseOnHover: boolean) =>
+        (type: "success" | "error", message: string, description: string) => {
+            api.open({
+                message,
+                description,
+                type,
+                showProgress: true,
+                pauseOnHover,
+            });
+        };
+    const {
+        data: comment,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["comment"],
+        queryFn: () => instance.get("/comment"),
+    });
+
+    const { data: user } = useQuery({
+        queryKey: ["user", userId],
+        queryFn: () => instance.get(`/user/${userId}`),
+    });
+
+    const { id: productId } = useParams();
+
+    const { mutate: del } = useMutation({
+        mutationFn: async (id: string) => {
+            try {
+                return await instance.delete(`/comment/${id}`);
+            } catch (error) {
+                throw new Error("error");
+            }
+        },
+        onSuccess: () => {
+            openNotification(false)(
+                "success",
+                "Xóa Bình Luận",
+                "Bạn Xóa Bình Luận Thành Công",
+            );
+            queryClient.invalidateQueries({
+                queryKey: ["comment"],
+            });
+        },
+        onError: () =>
+            openNotification(false)(
+                "error",
+                "Xóa Bình Luận",
+                "Bạn Xóa Bình Luận Thất Bại",
+            ),
+    });
+    const { mutate: addComment } = useMutation({
+        mutationFn: async (data: FieldType) => {
+            try {
+                return await instance.post(`/comment`, {
+                    userId,
+                    productId,
+                    ...data,
+                });
+            } catch (error) {
+                throw new Error("error");
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["comment"],
+            });
+            form.resetFields();
+        },
+        onError: () => {
+            openNotification(false)(
+                "error",
+                "Thêm Bình Luận",
+                "Thêm Bình Luận Bị Lỗi. Vui Lòng Thử Lại Sau",
+            );
+        },
+    });
+    const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+        addComment(values);
+    };
+    const [open, setOpen] = useState(false);
+    const showModal = () => {
+        setOpen(true);
+    };
+    const hideModal = () => {
+        setOpen(false);
+    };
+    const nav = () => {
+        navigate("/login");
+    };
+    if (isLoading)
+        return (
+            <div>
+                {" "}
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                />
+            </div>
+        );
+    if (isError)
+        return (
+            <div>
+                {" "}
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                />
+            </div>
+        );
     return (
-        <div>
-            <section className="show_review hidden">
-                <div className="flex flex-col text-sm text-[#46494F] leading-[21px] gap-y-4 lg:pt-6 mb:pt-5 mb:pb-0">
-                    {/* content comment 1 */}
-                    <div className="border rounded-2xl lg:p-6 mb:p-5">
-                        {/* user and time comment */}
-                        <div className="flex items-center *:flex *:items-center gap-x-4 border-b border-[#F4F4F4] pb-4 mb-4">
-                            <img
-                                width={36}
-                                height={36}
-                                src="../Images/vikki_user_icon.png"
-                                alt=""
-                            />
-                            <strong className="text-base text-[#1A1E26] font-medium gap-x-4">
-                                Vikki Starr{" "}
-                                <span className="text-sm text-[#9D9EA2] font-light">
-                                    |
-                                </span>{" "}
-                                <span className="text-sm text-[#9D9EA2] font-light">
-                                    January 15, 2023
-                                </span>
-                            </strong>
+        <>
+            {contextHolder}
+            <div className="w-[900px] mt-10 border rounded-md px-6 p-8">
+                <h3 className="font-medium text-xl">Đánh Giá Sản Phẩm</h3>
+                <div>
+                    <p className="text-sm text-neutral-400 mb-8">
+                        Vui lòng đặt câu hỏi, ai đó sẽ giúp bạn trả lời
+                    </p>
+                    <hr className="my-6 w-full h-1" />
+                    <div className="product-description text-sm" />
+                    <div className="grid grid-cols-1 gap-y-6">
+                        <div className="grid grid-cols-1 gap-y-4 h-96 overflow-y-auto">
+                            {comment?.data.length === 0 ? (
+                                <div>
+                                    {" "}
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        imageStyle={{ height: 60 }}
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    {comment?.data.map((item: any) => (
+                                        <div className=" flex items-start space-x-3 my-5 ">
+                                            <div className="flex flex-col bg-violet-100 bg-opacity-50 rounded-3xl px-3 py-4 w-96 relative">
+                                                <p className="mb-2 mx-2 text-xs font-semibold flex">
+                                                    <img
+                                                        className=" w-10 h-10 rounded-full"
+                                                        src={item.user?.avatar}
+                                                        alt=""
+                                                    />
+
+                                                    <p className="my-auto mx-2">
+                                                        {item.user?.name}
+                                                    </p>
+                                                </p>
+                                                {item.user?.userId ===
+                                                userId ? (
+                                                    <i className="text-xl reply-btn absolute bottom-3 right-4 cursor-pointer">
+                                                        <Popover
+                                                            content={
+                                                                <div className="w-10 text-center">
+                                                                    <Link
+                                                                        to={""}
+                                                                    >
+                                                                        <div className="mb-1 ">
+                                                                            Sửa
+                                                                        </div>
+                                                                    </Link>
+
+                                                                    <div
+                                                                        className="cursor-pointer text-red-600"
+                                                                        onClick={() =>
+                                                                            del(
+                                                                                item._id,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Xóa
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            trigger="click"
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <AiOutlineEllipsis />
+                                                        </Popover>
+                                                    </i>
+                                                ) : (
+                                                    ""
+                                                )}
+
+                                                <p className="mb-0 text-sm">
+                                                    {item.text}
+                                                </p>
+                                                <span className="absolute right-4 text-xs">
+                                                    {new Date(
+                                                        item.createdAt,
+                                                    ).toLocaleString(
+                                                        "vi-VN",
+                                                    )}{" "}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        {/* text comment */}
-                        <section className="flex flex-col gap-y-4">
-                            <nav className="flex items-center gap-x-1">
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                            </nav>
-                            <p className="text-[#1A1E26] text-base">
-                                Absolutely love TopShelfBC; affordable on any
-                                budget and such fast delivery, straight to my
-                                door! I recommend them to all my friends and
-                                family for their 420 needs.
-                            </p>
-                        </section>
-                    </div>
-                    {/* content comment 2 */}
-                    <div className="border rounded-2xl lg:p-6 mb:p-5">
-                        {/* user and time comment */}
-                        <div className="flex items-center *:flex *:items-center gap-x-4 border-b border-[#F4F4F4] pb-4 mb-4">
-                            <img
-                                width={36}
-                                height={36}
-                                src="../Images/vikki_user_icon.png"
-                                alt=""
-                            />
-                            <strong className="text-base text-[#1A1E26] font-medium gap-x-4">
-                                Terry Baskey{" "}
-                                <span className="text-sm text-[#9D9EA2] font-light">
-                                    |
-                                </span>{" "}
-                                <span className="text-sm text-[#9D9EA2] font-light">
-                                    January 15, 2023
-                                </span>
-                            </strong>
-                        </div>
-                        {/* text comment */}
-                        <section className="flex flex-col gap-y-4">
-                            <nav className="flex items-center gap-x-1">
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                                <img src="../Images/star.png" alt="" />
-                            </nav>
-                            <p className="text-[#1A1E26] text-base">
-                                Best damn place to buy your canabis at great
-                                prices.
-                            </p>
-                        </section>
-                    </div>
-                    {/*btn show more */}
-                    <div className="flex justify-center my-1">
-                        <button className="px-5 py-2 text-[#17AF26] text-sm rounded-[100px] border hover:bg-[#F9F9F9] cursor-pointer duration-300">
-                            Show More
-                        </button>
-                    </div>
-                    {/* add comment */}
-                    <div className="flex flex-col gap-y-6 border-t lg:pt-7 lg:pb-[22px]">
-                        <strong className="lg:text-lg">Add A Review</strong>
-                        <section className="flex item-center gap-x-4">
-                            <span className="mt-0.5">Your rating</span>
-                            <span>:</span>
-                            <div className="flex item-center *:w-5 *:h-5 gap-x-1 *:cursor-pointer">
-                                <img src="../Images/star_no_color.png" alt="" />
-                                <img src="../Images/star_no_color.png" alt="" />
-                                <img src="../Images/star_no_color.png" alt="" />
-                                <img src="../Images/star_no_color.png" alt="" />
-                                <img src="../Images/star_no_color.png" alt="" />
-                            </div>
-                        </section>
-                        <form className="-mt-1.5">
-                            <span>Your Review</span>
-                            <div className="overflow-hidden lg:p-4 rounded-xl border border-gray-200 shadow-sm focus-within:border-none focus-within:ring-1 focus-within:none mt-2">
-                                <textarea
-                                    id="OrderNotes"
-                                    className="w-full resize-none outline-none border-none align-top focus:ring-0 sm:text-sm"
-                                    rows={3}
-                                    placeholder="Enter your review"
-                                    defaultValue={""}
-                                />
-                            </div>
-                            <button className="px-10 py-4 bg-[#17AF26] rounded-[100px] text-base text-white mt-4">
-                                Submit
-                            </button>
-                        </form>
                     </div>
                 </div>
-            </section>
-        </div>
+                {userId ? (
+                    <>
+                        <div className="flex items-start space-x-4">
+                            <img
+                                className=" w-10 h-10 rounded-full"
+                                src={user?.data.avatar}
+                                alt=""
+                            />
+                            <Form
+                                onFinish={onFinish}
+                                className="flex"
+                                form={form}
+                            >
+                                <Form.Item name={"text"}>
+                                    <Input
+                                        placeholder="Nhập vào đây để bình luận"
+                                        className="w-80 h-9"
+                                    />
+                                </Form.Item>
+                                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                    <Button type="primary" htmlType="submit">
+                                        <AiOutlineSend className="size-4" />
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex items-start space-x-4">
+                        <img
+                            className=" w-10 h-10 rounded-full"
+                            src="https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/03/avatar-trang-4.jpg"
+                            alt=""
+                        />
+                        <Form className="flex">
+                            <Form.Item>
+                                <Input
+                                    placeholder="Nhập vào đây để bình luận"
+                                    className="w-80 h-9"
+                                />
+                            </Form.Item>
+                            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    onClick={showModal}
+                                >
+                                    <AiOutlineSend className="size-4" />
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                        <Modal
+                            title="Thông Báo"
+                            open={open}
+                            onOk={nav}
+                            onCancel={hideModal}
+                            okText="Đăng Nhập"
+                            cancelText="Hủy"
+                        >
+                            <p>Vui Lòng Đăng Nhập Để Bình Luận</p>
+                        </Modal>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 

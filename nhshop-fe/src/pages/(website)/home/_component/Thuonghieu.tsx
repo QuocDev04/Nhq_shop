@@ -28,7 +28,7 @@ const Thuonghieu = () => {
                                     other associated sleep issues.
                                 </p>
                             </div>
-                            <a className="lg:text-base text-[#17AF26] mb:text-sm underline tracking-[-0.5px] tracking-[0.1px]">
+                            <a className="lg:text-base text-[#17AF26] mb:text-sm underline ">
                                 Shop Indica
                             </a>
                         </a>

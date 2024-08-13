@@ -1,6 +1,6 @@
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Form, FormProps, Input, message } from "antd";
+import { Button, Empty, Form, FormProps, Input, message } from "antd";
 import { useParams } from "react-router-dom";
 type FieldType = {
     name: string;
@@ -45,7 +45,15 @@ const EditCategory = () => {
     const validateMessages = {
         required: "${label} is required!",
     };
-    if(isLoading) return <div>Loading...</div>
+    if(isLoading) return (
+        <div>
+            {" "}
+            <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                imageStyle={{ height: 60 }}
+            />
+        </div>
+    );
     if(isError) return <div>{error.message}</div>
     console.log(category?.data?.category);
     

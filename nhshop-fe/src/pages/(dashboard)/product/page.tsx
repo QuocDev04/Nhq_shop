@@ -249,7 +249,7 @@ import { IProduct } from "@/common/types/IProduct";
 import { delProduct } from "@/services/product";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, message, Popconfirm, Table, TableColumnsType } from "antd";
+import { Button, Empty, message, Popconfirm, Table, TableColumnsType } from "antd";
 
 import instance from "@/configs/axios";
 
@@ -311,8 +311,6 @@ const ProductPage = () => {
             .map((name: string) => ({ text: name, value: name }));
     };
 
-    // Thêm state cho tìm kiếm
-
     const columns: TableColumnsType = [
         {
             title: "Tên Sản Phẩm",
@@ -322,7 +320,10 @@ const ProductPage = () => {
             fixed: "left",
             filterSearch: true,
             filters: data ? createFilter(data?.data) : [],
-          
+            onFilter: (value: string, product: IProduct) =>
+                product.name.includes(value),
+            sorter: (a: IProduct, b: IProduct) => a.name.localeCompare(b.name),
+            sortDirections: ["ascend", "descend"],
         },
         {
             title: "Giá",
@@ -420,12 +421,6 @@ const ProductPage = () => {
                 )),
         },
         {
-            title: "Mô tả",
-            dataIndex: "description",
-            key: "description",
-       
-        },
-        {
             title: "Hành động",
             key: "operation",
             fixed: "right",
@@ -461,7 +456,15 @@ const ProductPage = () => {
     ];
 
 
-    if (isLoading) return <div>shdfk</div>;
+    if (isLoading) return (
+        <div>
+            {" "}
+            <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                imageStyle={{ height: 60 }}
+            />
+        </div>
+    );
     return (
         <div>
             <div className="flex items-center justify-between">

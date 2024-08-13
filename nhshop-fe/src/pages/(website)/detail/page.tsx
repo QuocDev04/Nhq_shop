@@ -1,20 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import RowLeft from "./_component/rowleft/RowLeft";
-import DeatilComment from "./_component/rowright/DetailComment";
-import DetailRefer from "./_component/rowright/DetailRefer";
 import FeaturedProduct from "./_component/rowright/FeaturedProduct";
 import MenuDescription from "./_component/rowright/MenuDescription";
 import Row1 from "./_component/rowright/row1";
 import Row2 from "./_component/rowright/row2";
-import Row3 from "./_component/rowright/row3";
 import Row4 from "./_component/rowright/row4";
 import Row5 from "./_component/rowright/row5";
-import TextDescription from "./_component/rowright/TextDescription";
+import { useQuery } from "@tanstack/react-query";
+import instance from "@/configs/axios";
+import { useParams } from "react-router-dom";
+
 
 const DetailPage = () => {
+
     useEffect(()=>{
         window.scrollTo(0,0)
     },[])
+    const {id} = useParams()
+    const {data:Id} = useQuery({
+        queryKey:['product',id],
+        queryFn:()=> instance.get(`/product/${id}`)
+    })    
     return (
         <div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
@@ -32,7 +39,6 @@ const DetailPage = () => {
                             <Row2 />
 
                             {/* row 3 */}
-                            <Row3 />
 
                             {/* row 4 */}
                             <Row4 />
@@ -49,24 +55,18 @@ const DetailPage = () => {
                                     </p>
                                 </span>
                                 <span className="font-light text-[#717378] lg:gap-x-[50px] mb:gap-x-10">
-                                    Categories{" "}
-                                    <p className="text-[#17AF26] font-normal">
-                                        :&nbsp;&nbsp;&nbsp;&nbsp; AAAA Weed,
-                                        Indica
-                                    </p>
+                                    Danh Mục{" "}
+                                    {Id?.data.category.map((item:any) => (
+                                        <p className="text-[#17AF26] font-normal">
+                                            :&nbsp; {item.name}
+                                        </p>
+                                    ))}
                                 </span>
                             </div>
                         </div>
                         {/* description */}
                         <div className="flex flex-col border-t lg:py-10 lg:mt-10 mb:py-[34px] mb:mt-8">
-                            {/* menu description */}
                             <MenuDescription />
-                            {/* text description */}
-                            <TextDescription />
-                            {/* detail comment */}
-                            <DeatilComment />
-                            {/* detail refer a friend */}
-                            <DetailRefer />
                         </div>
                     </div>
                 </div>

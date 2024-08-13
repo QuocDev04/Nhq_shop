@@ -23,14 +23,15 @@ const Header = () => {
             </Link>
         </div>
     );
+    const userId = localStorage.getItem("userId");
+
     const user = (
         <div>
-            <Link to={"/information"}>
+            <Link to={`/information/${userId}`}>
                 <div>Thông tin</div>
             </Link>
-            <Link to={"/logout"}>
-                <div>Đăng xuất</div>
-            </Link>
+
+            <div className="cursor-pointer">Đăng xuất</div>
         </div>
     );
     const Token = localStorage.getItem("token");
@@ -158,12 +159,11 @@ const Header = () => {
                         )}
                         &emsp;|&emsp;
                         <Badge>
-                            <Link to={'/favourite'}>
-                               <button>
-                                <AiOutlineHeart className="size-6" />
-                            </button>
+                            <Link to={"/favourite"}>
+                                <button>
+                                    <AiOutlineHeart className="size-6" />
+                                </button>
                             </Link>
-                         
                         </Badge>
                         &emsp;|&emsp;
                         <Badge>

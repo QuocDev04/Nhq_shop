@@ -1,30 +1,38 @@
-// import { Router } from "express";
-// import {
-//     createAttribute,
-//     createValueAttribute,
-//     deleteAttribute,
-//     getAllAttributes,
-//     getAttributeById,
-//     updateAttribute,
-// } from "../controllers/attribute";
+import { Router } from "express";
+import {
+  CreateAttrubite,
+  createValueAttribute,
+  delAttru,
+  delValue,
+  GetAll,
+  GetAllValues,
+  GetId,
+  getIdValue,
+  putAttru,
+  putValue,
+} from "../controllers/attribute";
 
-// const router = Router();
-// // Route để tạo mới một thuộc tính
-// router.post("/attributes", createAttribute);
+const router = Router();
+//ATTRiBuTE
+router.post("/attributes", CreateAttrubite);
 
-// // Route để thêm giá trị cho thuộc tính đã tồn tại
-// router.post("/attributes/:id/values", createValueAttribute);
+router.get("/attributes", GetAll);
 
-// // Route để lấy tất cả các thuộc tính
-// router.get("/attributes", getAllAttributes);
+router.get("/attributes/:id", GetId);
 
-// // Route để lấy một thuộc tính theo ID
-// router.get("/attributes/:id", getAttributeById);
+router.put("/attributes/:id", putAttru);
 
-// // Route để cập nhật một thuộc tính theo ID
-// router.put("/attributes/:id", updateAttribute);
+router.delete("/attributes/:id", delAttru);
 
-// // Route để xóa một thuộc tính theo ID
-// router.delete("/attributes/:id", deleteAttribute);
+//VALUES
+router.post("/value/:attributesId", createValueAttribute);
 
-// export default router;
+router.get("/values", GetAllValues);
+
+router.get("/value/:id", getIdValue);
+
+router.put("/values/:id", putValue);
+
+router.delete("/values/:id", delValue);
+
+export default router;

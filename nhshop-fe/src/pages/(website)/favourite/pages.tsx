@@ -3,7 +3,10 @@ import Favourite from "./_component/Favourite";
 const FavouritePages = () => {
     return ( 
         <>
-            <Favourite/>
+        <div className="mb-96">
+             <Favourite/>
+        </div>
+           
         </>
      );
 }

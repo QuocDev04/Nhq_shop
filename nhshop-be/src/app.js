@@ -8,6 +8,9 @@ import routerProduct from "./routers/product";
 import routerCategory from "./routers/category";
 import cartRouter from "./routers/cart";
 import favouriteRouter from "./routers/favourite";
+import orderRouter from "./routers/order"
+import commentRouter from "./routers/comment";
+import attrubitetRouter from "./routers/attribute";
 
 const app = express();
 
@@ -31,4 +34,7 @@ app.use("/api/", routerProduct);
 app.use("/api/",routerCategory)
 app.use("/api/", cartRouter);
 app.use("/api/", favouriteRouter);
+app.use("/api/", orderRouter);
+app.use("/api/", commentRouter);
+app.use("/api/", attrubitetRouter);
 export const viteNodeApp = app;

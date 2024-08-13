@@ -1,23 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-    AiOutlineExclamationCircle,
     AiTwotoneShopping,
     AiTwotoneDelete,
 } from "react-icons/ai";
-import { notification, Popconfirm } from "antd";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Avatar, Button, Card, Empty, notification, Popconfirm, Tabs, TabsProps } from "antd";
+import {
+    QuestionCircleOutlined,
+} from "@ant-design/icons";
+import Meta from "antd/es/card/Meta";
+
 const Favourite = () => {
     const userId = localStorage.getItem("userId");
-     const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
     const [api, contextHolder] = notification.useNotification();
 
     const { data: favourite, isLoading } = useQuery({
         queryKey: ["favourite"],
         queryFn: () => instance.get(`/favourite/${userId}`),
     });
-    console.log(favourite?.data?.productFavourite);
+
     const openNotification =
         (pauseOnHover: boolean) =>
         (type: "success" | "error", message: string, description: string) => {
@@ -29,7 +33,14 @@ const Favourite = () => {
                 pauseOnHover,
             });
         };
-
+    const exchangeRate = 1; // Tỷ giá hối đoái USD -> VND
+    const formatCurrency = (price: number) => {
+        const priceInVND = price * exchangeRate;
+        return priceInVND.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        });
+    };
     const { mutate: remoteFavourite } = useMutation({
         mutationFn: async (productId: string) => {
             try {
@@ -48,19 +59,20 @@ const Favourite = () => {
                 "Xóa sản phẩm trong mục yêu thích thành công",
             );
             queryClient.invalidateQueries({
-                queryKey:['favourite']
-            })
+                queryKey: ["favourite"],
+            });
         },
-        onError:()=>{
+        onError: () => {
             openNotification(false)(
                 "error",
                 "Sản phẩm xóa từ mục yêu thích bị lỗi.",
                 "Xóa sản phẩm trong mục yêu thích thất bại",
             );
-        }
+        },
     });
-    const {mutate: addCart} = useMutation({
-        mutationFn:async(id:string)=>{
+
+    const { mutate: addCart } = useMutation({
+        mutationFn: async (id: string) => {
             try {
                 return await instance.post("/carts/add-to-cart/", {
                     userId,
@@ -68,109 +80,179 @@ const Favourite = () => {
                     quantity: 1,
                 });
             } catch (error) {
-                console.log(error);    
+                console.log(error);
             }
         },
-        onSuccess:()=>{
+        onSuccess: () => {
             openNotification(false)(
                 "success",
                 "Sản phẩm đã được thêm vào giỏ hàng",
                 "thêm sản phẩm vào giỏ hàng thành công",
-            )
+            );
         },
-        onError:()=>{
+        onError: () => {
             openNotification(false)(
                 "error",
                 "Sản phẩm thêm vào giỏ hàng bị lỗi",
                 "thêm sản phẩm vào giỏ hàng thất bại",
-            )
-        }
-    })
-    if (isLoading) return <div>Loading...</div>;
+            );
+        },
+    });
+
+    const items: TabsProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <button className="inline-flex items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-gray-700">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="h-5 w-5"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
+                        />
+                    </svg>
+                </button>
+            ),
+            children: (
+                <>
+                    {favourite?.data.productFavourite.length === 0 ? (
+                        <div>
+                            <Empty
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                imageStyle={{ height: 60 }}
+                            >
+                                <Link to={"/shop"}>
+                                    <Button type="primary">
+                                        Thêm vào yêu thích để xem
+                                    </Button>
+                                </Link>
+                            </Empty>
+                        </div>
+                    ) : (
+                        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            {favourite?.data.productFavourite.map(
+                                (item: any) => (
+                                    <li
+                                        key={item.productId}
+                                        className="flex flex-col items-start"
+                                    >
+                                        <Card
+                                            style={{ width: 300 }}
+                                            cover={
+                                                <Link
+                                                    to={`/products/${item.productId}`}
+                                                    key="details"
+                                                >
+                                                    <img
+                                                        alt="example"
+                                                        src={item.img}
+                                                        className="m-auto"
+                                                    />
+                                                </Link>
+                                            }
+                                            actions={[
+                                                <Popconfirm
+                                                    onConfirm={() =>
+                                                        remoteFavourite(
+                                                            item.productId,
+                                                        )
+                                                    }
+                                                    className="m-auto h-6 w-6"
+                                                    title="Delete the task"
+                                                    description="Are you sure to delete this task?"
+                                                    icon={
+                                                        <QuestionCircleOutlined
+                                                            style={{
+                                                                color: "red",
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <AiTwotoneDelete />
+                                                </Popconfirm>,
+                                                <button
+                                                    onClick={() =>
+                                                        addCart(item.productId)
+                                                    }
+                                                    className="text-sm text-white cursor-pointer"
+                                                >
+                                                    <AiTwotoneShopping className="h-6 w-6 text-red-600" />
+                                                </button>,
+                                                <button className="text-sm text-white cursor-pointer bg-red-600 py-2 px-4">
+                                                    Mua ngay
+                                                </button>,
+                                            ]}
+                                        >
+                                            <Meta
+                                                avatar={
+                                                    <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+                                                }
+                                                title={item.name}
+                                                description={formatCurrency(
+                                                    item.price,
+                                                )}
+                                            />
+                                        </Card>
+                                    </li>
+                                ),
+                            )}
+                        </ul>
+                    )}
+                </>
+            ),
+        },
+        {
+            key: "2",
+            label: (
+                <button className="inline-flex items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-gray-700">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="h-5 w-5"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
+                        />
+                    </svg>
+                </button>
+            ),
+            children: "Content of Tab Pane 2",
+        },
+    ];
+
+    if (isLoading) return (
+        <div>
+            {" "}
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </div>
+    );
+
     return (
         <>
             {contextHolder}
-            <div className=" mb-96">
-                <section>
-                    <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-                        <header>
-                            <h2 className="text-xl font-bold text-gray-900 sm:text-3xl">
-                                Sản phẩm yêu thích
-                            </h2>
-                        </header>
-
-                        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {favourite?.data.productFavourite.map((item) => (
-                                <li>
-                                    <div className="group relative block bg-black">
-                                        <img
-                                            alt=""
-                                            src={item.img}
-                                            className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
-                                        />
-
-                                        <div className="relative p-4 sm:p-6 lg:p-8">
-                                            <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
-                                                {item.price}
-                                            </p>
-
-                                            <p className="text-xl font-bold text-white sm:text-2xl">
-                                                {item.name}
-                                            </p>
-
-                                            <div className="mt-32 sm:mt-48 lg:mt-64">
-                                                <div className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-                                                    <div className="space-x-4 flex justify-center">
-                                                        <button>
-                                                            <Link
-                                                                to={`/products/${item.productId}`}
-                                                                className="text-sm text-white cursor-pointer"
-                                                            >
-                                                                <AiOutlineExclamationCircle className="size-8 text-blue-600" />
-                                                            </Link>
-                                                        </button>
-                                                        <Popconfirm
-                                                            onConfirm={() =>
-                                                                remoteFavourite(
-                                                                    item.productId,
-                                                                )
-                                                            }
-                                                            className="mt-4"
-                                                            title="Delete the task"
-                                                            description="Are you sure to delete this task?"
-                                                            icon={
-                                                                <QuestionCircleOutlined
-                                                                    style={{
-                                                                        color: "red",
-                                                                    }}
-                                                                />
-                                                            }
-                                                        >
-                                                            <AiTwotoneDelete className="size-8 text-red-600" />
-                                                        </Popconfirm>
-
-                                                        <button
-                                                            onClick={() =>
-                                                                addCart(item.productId)
-                                                            }
-                                                            className="text-sm text-white cursor-pointer"
-                                                        >
-                                                            <AiTwotoneShopping className="size-8 text-red-600" />
-                                                        </button>
-                                                        <button className="text-sm text-white cursor-pointer bg-red-600 py-3 px-4">
-                                                            Mua ngay
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
+            <div>
+                <h2 className="text-xl font-bold m-10 text-gray-900 sm:text-3xl">
+                    Danh sách yêu thích
+                </h2>
             </div>
+            <Tabs
+                defaultActiveKey="1"
+                type="card"
+                items={items}
+                className="ml-10"
+            />
         </>
     );
 };

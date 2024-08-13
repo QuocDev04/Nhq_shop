@@ -2,12 +2,19 @@
 import { Category } from "@/common/types/Category";
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, message, Popconfirm, Table, TableColumnsType } from "antd";
+import {
+    Button,
+    Empty,
+    message,
+    Popconfirm,
+    Table,
+    TableColumnsType,
+} from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { Link } from "react-router-dom";
 const ListCategory = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
     const [messageApi, contextHolder] = message.useMessage();
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["category"],
@@ -27,8 +34,8 @@ const ListCategory = () => {
                 content: "Xóa danh mục thành công",
             });
             queryClient.invalidateQueries({
-                queryKey:['category']
-            })
+                queryKey: ["category"],
+            });
         },
         onError: () => {
             messageApi.open({
@@ -58,7 +65,9 @@ const ListCategory = () => {
                     >
                         <Button danger>Delete</Button>
                     </Popconfirm>
-                    <Link to={`/admin/editCategory/${category._id}`}><Button type="primary">Sửa</Button></Link>
+                    <Link to={`/admin/editCategory/${category._id}`}>
+                        <Button type="primary">Sửa</Button>
+                    </Link>
                 </div>
             ),
         },
@@ -67,7 +76,15 @@ const ListCategory = () => {
         key: categori._id,
         ...categori,
     }));
-    if (isLoading) return <div>Loanding...</div>;
+    if (isLoading)
+        return (
+            <div>
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                />
+            </div>
+        );
     if (isError) return <div>{error.message}</div>;
     return (
         <div>

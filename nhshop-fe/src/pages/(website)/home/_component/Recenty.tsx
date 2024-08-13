@@ -1,13 +1,22 @@
 import instance from "@/configs/axios";
 import { useQuery } from "@tanstack/react-query";
 import ProductList from "../../_component/ProductsList";
+import { Empty } from "antd";
 
 const Recenty = () => {
     const { data: product, isLoading } = useQuery({
         queryKey: ["product"],
         queryFn: () => instance.get("/product"),
     });
-    if (isLoading) return <div>bdv</div>;
+    if (isLoading) return (
+        <div>
+            {" "}
+            <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                imageStyle={{ height: 60 }}
+            />
+        </div>
+    );
     return (
         <div>
             <div className="lg:w-[1100px] mx-auto sm:w-[95vw] mb:w-[342px] flex flex-col lg:py-24 mb:py-7">

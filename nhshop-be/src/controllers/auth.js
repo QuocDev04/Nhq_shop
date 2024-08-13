@@ -148,4 +148,44 @@ export const getAllUser = async (req, res) => {
       message: "fix",
     });
   }
+} 
+export const getIdUser = async (req,res)=>{
+  try {
+    const getId = await User.findById(req.params.id, req.body)
+    res.json(getId)
+  } catch (error) {
+    res.status(400).json({
+      message:"fix"
+    })
+  }
 }
+export const postIdUser = async (req, res) => {
+  try {
+    const post = await User.create(req.body);
+    res.json(post);
+  } catch (error) {
+    res.status(400).json({
+      message: "fix",
+    });
+  }
+};
+export const putIdUser = async (req, res) => {
+  try {
+    const put = await User.findByIdAndUpdate(req.params.id, req.body);
+    res.json(put);
+  } catch (error) {
+    res.status(400).json({
+      message: "fix",
+    });
+  }
+};
+export const delIdUser = async (req, res) => {
+  try {
+    const del = await User.findByIdAndDelete(req.params.id);
+    res.json(del);
+  } catch (error) {
+    res.status(400).json({
+      message: "fix",
+    });
+  }
+};

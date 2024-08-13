@@ -1,21 +1,27 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { cartCT } from "@/common/context/cartContext";
 import { IProduct } from "@/common/types/IProduct";
 import instance from "@/configs/axios";
-import { useMutation } from "@tanstack/react-query";
-import { notification } from "antd";
-import { useContext } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Modal, notification } from "antd";
+import { useState } from "react";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { AiTwotoneEye, AiOutlineHeart } from "react-icons/ai";
 type ProductsItemProps = {
     product: IProduct;
 };
 
 const ProductsItems = ({ product }: ProductsItemProps) => {
-    const { setCart } = useContext(cartCT);
     const [api, contextHolder] = notification.useNotification();
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
     const openNotification =
         (pauseOnHover: boolean) =>
         (type: "success" | "error", message: string, description: string) => {
@@ -27,10 +33,23 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 pauseOnHover,
             });
         };
-
+    const userId = localStorage.getItem("userId");
+    const { data: s, isLoading } = useQuery({
+        queryKey: ["product"],
+        queryFn: () => instance.get(`/product`),
+    });
+    const queyClient = useQueryClient();
+    console.log("id", s?.data);
+    const { data } = useQuery({
+        queryKey: ["favourite"],
+        queryFn: () => instance.get(`/favourite/${userId}`),
+    });
+    console.log("favourite", data?.data.productFavourite);
+    const favouriteProductIds = data?.data.productFavourite.map(
+        (item:any) => item.productId,
+    );
     const mutation = useMutation({
         mutationFn: async (id: string) => {
-            const userId = localStorage.getItem("userId");
             if (!userId) {
                 throw new Error("User ID is missing. Please log in.");
             }
@@ -47,7 +66,6 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
         },
         onSuccess: (data) => {
             if (data && data.cart) {
-                setCart(data.cart);
                 openNotification(false)(
                     "success",
                     "Thêm giỏ hàng thành công",
@@ -69,8 +87,55 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
             );
         },
     });
+    const { mutate: AddFavourite } = useMutation({
+        mutationFn: async (productId: string) => {
+            try {
+                return await instance.post(`/favourite/add-to-favourite`, {
+                    userId,
+                    productId,
+                });
+            } catch (error) {
+                throw new Error("error");
+            }
+        },
+        onSuccess: () =>{
+        queyClient.invalidateQueries({
+            queryKey:['favourite']
+        })
+        },
 
-    const exchangeRate = 1; // Tỷ giá hối đoái USD -> VND
+        onError: () =>(
+            openNotification(false)(
+                "success",
+                "Thêm sản phảm vào mục yêu thích thất bại",
+                "Thêm sản phẩm vô mục yêu thích không thành công",
+            ))
+    });
+    const {mutate: delFavourite} = useMutation({
+        mutationFn:async(productId:string)=>{
+            try {
+                return await instance.post(`/favourite/remove`,{
+                    userId,
+                    productId
+                })
+            } catch (error) {
+                throw new Error("error");    
+            }
+        },
+        onSuccess:()=>{
+            queyClient.invalidateQueries({
+                queryKey:['favourite']
+            })
+        },
+        onError:()=>{
+            openNotification(false)(
+                "error",
+                "Lỗi",
+                "Thất Bại",
+            )
+        }
+    })
+    const exchangeRate = 1;
     const formatCurrency = (price: number) => {
         const priceInVND = price * exchangeRate;
         return priceInVND.toLocaleString("vi-VN", {
@@ -78,51 +143,111 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
             currency: "VND",
         });
     };
-
+    if (isLoading) return <div></div>;
     return (
         <>
             {contextHolder}
-            <div className="flex flex-col justify-between rounded-3xl border cursor-pointer mx-3 ">
-                {/* <!-- img --> */}
-
+            <div className="relative block rounded-3xl border border-gray-400">
                 <div className="relative group w-full h-[240px] bg-[#F4F4F4] rounded-3xl grid place-items-center">
-                    <span className="absolute -right-px -top-px rounded-bl-3xl rounded-tr-3xl bg-rose-600 px-2 py-2 font-medium uppercase text-white">
-                        Save 10%
-                    </span>
-                    <img className="h-[200px]" src={product.img} alt="" />
-                    <div className="absolute scale-0 group-hover:scale-100 flex gap-2 group-hover:translate-y-0  duration-200 rounded-[100px] border-none text-sm ">
-                        <Link to={`/products/${product._id}`}>
-                            <AiTwotoneEye className="size-9 text-white backdrop-blur-md rounded-3xl" />{" "}
-                        </Link>
-                        <AiOutlineHeart className="size-9 text-white backdrop-blur-md rounded-3xl" />{" "}
-                    </div>
+                    {userId ? (
+                        <>
+                            <button
+                                onClick={() => {
+                                    if (
+                                        favouriteProductIds?.includes(
+                                            product._id,
+                                        )
+                                    ) {
+                                        delFavourite(product._id);
+                                    } else {
+                                        AddFavourite(product._id);
+                                    }
+                                }}
+                                className="absolute end-4 top-4 z-10 rounded-full p-1.5 text-gray-900 transition hover:text-gray-900/75"
+                            >
+                                {favouriteProductIds?.includes(product._id) ? (
+                                    <AiFillHeart className="text-red-600 size-6" />
+                                ) : (
+                                    <AiOutlineHeart className="text-black size-6" />
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                onClick={showModal}
+                                className="absolute end-4 top-4 z-10 rounded-full bg-white p-1.5 text-gray-900 transition hover:text-gray-900/75"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1.5"
+                                    stroke="currentColor"
+                                    className="h-4 w-4"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                                    />
+                                </svg>
+                            </button>
+                            <Modal
+                                title="Thông Báo"
+                                open={isModalOpen}
+                                onOk={handleOk}
+                                onCancel={handleCancel}
+                                okText="Đăng Nhập"
+                                cancelText="Hủy"
+                            >
+                                <p>
+                                    Quý Khách Vui Lòng Đăng Nhập Để Làm Bước
+                                    Tiếp Theo
+                                </p>
+                            </Modal>
+                        </>
+                    )}
+
+                    <Link to={`/products/${product._id}`}>
+                        <img
+                            className="h-[230px] rounded-3xl"
+                            src={product.img}
+                            alt=""
+                        />
+                    </Link>
                 </div>
+                <div className="p-4 text-center">
+                    <strong className="text-xl font-medium text-gray-900">
+                        {" "}
+                        {product.name}{" "}
+                    </strong>
 
-                {/* <!-- about --> */}
-                <div className="w-full h-full flex flex-col justify-between items-center">
-                    <strong className="uppercase font-light text-center text-[#9D9EA2]">
-                        flower
-                    </strong>
-                    <strong className="text-lg line-clamp-2 font-normal text-[#1A1E26] my-1 mx-3 text-center">
-                        {product.name}
-                    </strong>
-                    <section className="w-[163px] h-[21px] *:text-md flex justify-center items-center">
-                        <div className="flex items-center">
-                            <div className="flex my-2 lg:-translate-y-1.5">
-                                <span className="text-[#EB2606]">
-                                    {formatCurrency(product.price)}
-                                </span>
-                            </div>
+                    <p className="mt-2 text-pretty text-lg text-gray-700">
+                        {formatCurrency(product.price)}
+                    </p>
+                    {userId ? (
+                        <>
+                            <button
+                                onClick={() => mutation.mutate(product._id)}
+                                disabled={mutation.isPending}
+                                className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16 ml-3 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
+                            >
+                                {mutation.isPending
+                                    ? "Loading..."
+                                    : "Add to cart"}
+                            </button>
+                        </>
+                    ) : (
+                        <div>
+                            <button
+                                onClick={showModal}
+                                className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16 ml-3 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
+                            >
+                                Add to cart
+                            </button>
                         </div>
-                    </section>
-
-                    <button
-                        onClick={() => mutation.mutate(product._id)}
-                        disabled={mutation.isPending}
-                        className="bg-[#17AF26] w-[128px] mb-3 h-[40px] grid place-items-center rounded-[100px] text-sm my-4 text-white"
-                    >
-                        {mutation.isPending ? "Loading..." : "Add to cart"}
-                    </button>
+                    )}
                 </div>
             </div>
         </>

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Empty, Image, notification, Popconfirm } from "antd";
+import { Button, Empty, Image, notification, Popconfirm } from "antd";
 import { AiOutlinePlusCircle, AiOutlineMinusCircle } from "react-icons/ai";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import instance from "@/configs/axios";
+import { Link } from "react-router-dom";
 
 interface Product {
     productId: string;
@@ -12,6 +13,7 @@ interface Product {
     price: number;
     img: string;
     discount: number;
+    attribute: string[];
     finalPrice: number;
 }
 
@@ -26,11 +28,10 @@ export interface Cart {
 }
 
 const TableCart = () => {
-  
     const [api, contextHolder] = notification.useNotification();
     const userId = localStorage.getItem("userId");
     const queryClient = useQueryClient();
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ["cart"],
         queryFn: async () => {
             if (!userId) {
@@ -78,7 +79,7 @@ const TableCart = () => {
         },
         onSuccess: (data) => {
             data && data.cart;
-           
+
             openNotification(false)(
                 "success",
                 "Sản phẩm đã được xóa từ giỏ hàng.",
@@ -98,18 +99,17 @@ const TableCart = () => {
     });
     const { mutate: Increase } = useMutation({
         mutationFn: async (productId: string) => {
-           const userId = localStorage.getItem("userId");
-           if (!userId) {
-               throw new Error("Vui lòng đăng nhập");
-           }
-           const { data } = await instance.post("/carts/increase", {
-               userId,
-               productId,
-           });
-           return data.cart;
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                throw new Error("Vui lòng đăng nhập");
+            }
+            const { data } = await instance.post("/carts/increase", {
+                userId,
+                productId,
+            });
+            return data.cart;
         },
         onSuccess: () => {
-           
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
@@ -117,18 +117,17 @@ const TableCart = () => {
     });
     const { mutate: Decrease } = useMutation({
         mutationFn: async (productId: string) => {
-           const userId = localStorage.getItem("userId");
-           if (!userId) {
-               throw new Error("Vui lòng đăng nhập");
-           }
-           const { data } = await instance.post("/carts/decrease", {
-               userId,
-               productId,
-           });
-           return data.cart;
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                throw new Error("Vui lòng đăng nhập");
+            }
+            const { data } = await instance.post("/carts/decrease", {
+                userId,
+                productId,
+            });
+            return data.cart;
         },
         onSuccess: () => {
-           
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
@@ -154,23 +153,44 @@ const TableCart = () => {
             return data.cart;
         },
         onSuccess: () => {
-            
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
         },
     });
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-    if (error) {
-        return <div>Error loading cart: {error.message}</div>;
-    }
-
     const cart: Cart = data;
-   const handleQuantityChange = (productId: string, quantity: number) => {
-       updateQuantity({ productId, quantity });
-   };
+    const handleQuantityChange = (productId: string, quantity: number) => {
+        updateQuantity({ productId, quantity });
+    };
+    if (isLoading) {
+        return (
+            <div>
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                >
+                    <Link to={"/shop"}>
+                        <Button type="primary">Thêm vô giỏ hàng để xem</Button>
+                    </Link>
+                </Empty>
+            </div>
+        );
+    }
+    if (isError) {
+        return (
+            <div>
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                >
+                    <Link to={"/shop"}>
+                        <Button type="primary">Thêm vô giỏ hàng để xem</Button>
+                    </Link>
+                </Empty>
+            </div>
+        );
+    }
+    console.log("table", data.products);
 
     return (
         <>
@@ -185,8 +205,19 @@ const TableCart = () => {
                         </header>
 
                         <div className="mt-8">
-                            {cart.products.length === 0 ? (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            {cart.totalQuantity === 0 ? (
+                                <div className="mb-96">
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        imageStyle={{ height: 60 }}
+                                    >
+                                        <Link to={"/shop"}>
+                                            <Button type="primary">
+                                                Thêm vô giỏ hàng để xem
+                                            </Button>
+                                        </Link>
+                                    </Empty>
+                                </div>
                             ) : (
                                 <ul className="space-y-2 w-[650px]">
                                     {cart.products.map((product) => (
@@ -195,27 +226,32 @@ const TableCart = () => {
                                             key={product.productId}
                                         >
                                             <Image
-                                            src={product.img}
+                                                src={product.img}
                                                 alt={product.name}
-                                                style={{height:"170px"}}
+                                                style={{ width: 100 }}
                                             />
                                             <div>
                                                 <h3 className="text-xl text-gray-900">
                                                     {product.name}
                                                 </h3>
 
-                                                <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
+                                                <dl className="mt-0.5 space-y-px text-[10px] ext-gray-900">
                                                     <div>
                                                         <dt className="inline text-lg">
                                                             Price: {""}
                                                         </dt>
-                                                        <dd className="inline text-sm text-red-500">
+                                                        <dd className="inline text-lg text-red-500">
                                                             {formatCurrency(
                                                                 product.price,
                                                             )}
                                                         </dd>
                                                     </div>
                                                 </dl>
+
+                                                <h3 className="text-lg text-gray-900">
+                                                    {" "}
+                                                    Size:{}
+                                                </h3>
                                             </div>
 
                                             <div className="flex flex-1 items-center justify-end gap-2">

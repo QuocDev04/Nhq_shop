@@ -10,6 +10,10 @@ import LayoutAdmin from "@/pages/(dashboard)/layout";
 import AddProduct from "@/pages/(dashboard)/product/AddProduct/add";
 import EditPage from "@/pages/(dashboard)/product/EditProduct/update";
 import ProductAdmin from "@/pages/(dashboard)/product/page";
+import EditUser from "@/pages/(dashboard)/users/Edit/Edit";
+import ListUser from "@/pages/(dashboard)/users/List/List";
+import Information from "@/pages/(website)/_component/Inormation";
+import Billpages from "@/pages/(website)/bill/page";
 import CartPage from "@/pages/(website)/cart/page";
 import CheckOutPage from "@/pages/(website)/checkout/page";
 import DetailPage from "@/pages/(website)/detail/page";
@@ -31,6 +35,8 @@ const Router = () => {
                     <Route path="cart" element={<CartPage />} />
                     <Route path="order" element={<CheckOutPage />} />
                     <Route path="favourite" element={<FavouritePages />} />
+                    <Route path="bill/:user/:id" element={<Billpages />} />
+                    <Route path="information/:id" element={<Information />} />
                 </Route>
                 <Route path="admin" element={<LayoutAdmin />}>
                     <Route index element={<Dashboard />} />
@@ -42,6 +48,9 @@ const Router = () => {
                     <Route path="category" element={<ListCategory />} />
                     <Route path="addCategory" element={<AddCategory />} />
                     <Route path="editCategory/:id" element={<EditCategory />} />
+                    {/* User */}
+                    <Route path="users" element={<ListUser />} />
+                    <Route path="user/:id" element={<EditUser />} />
                 </Route>
                 {/* Đăng nhập và Đăng ký */}
                 <Route path="/register" element={<RegisterPages />} />
