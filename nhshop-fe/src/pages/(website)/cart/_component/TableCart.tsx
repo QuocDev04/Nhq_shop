@@ -247,11 +247,11 @@ const TableCart = () => {
                                                         </dd>
                                                     </div>
                                                 </dl>
-
+{/* 
                                                 <h3 className="text-lg text-gray-900">
                                                     {" "}
                                                     Size:{}
-                                                </h3>
+                                                </h3> */}
                                             </div>
 
                                             <div className="flex flex-1 items-center justify-end gap-2">
