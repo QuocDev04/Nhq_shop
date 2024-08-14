@@ -14,7 +14,7 @@ const Row5 = () => {
     });
     const queryClient = useQueryClient();
 
-    const [localQuantity, setLocalQuantity] = useState(1); // Local quantity state
+    const [localQuantity, setLocalQuantity] = useState(1); 
 
     const formatCurrency = (price: number) => {
         const priceInVND = price * 1;

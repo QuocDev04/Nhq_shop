@@ -2,17 +2,66 @@
 import { IProduct } from "@/common/types/IProduct";
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Empty, Modal, notification, Skeleton } from "antd";
+import { Button, ConfigProvider, Empty, Modal, notification, Skeleton } from "antd";
 import { useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import { createStyles, useTheme } from 'antd-style';
 type ProductsItemProps = {
     product: IProduct;
 };
-
+const useStyle = createStyles(({ token }) => ({
+    'my-modal-body': {
+        background: token.blue1,
+        padding: token.paddingSM,
+    },
+    'my-modal-mask': {
+        boxShadow: `inset 0 0 15px #fff`,
+    },
+    'my-modal-header': {
+        borderBottom: `1px dotted ${token.colorPrimary}`,
+    },
+    'my-modal-footer': {
+        color: token.colorPrimary,
+    },
+    'my-modal-content': {
+        border: '1px solid #333',
+    },
+}));
 const ProductsItems = ({ product }: ProductsItemProps) => {
+    const [localQuantity, setLocalQuantity] = useState(1);
     const [api, contextHolder] = notification.useNotification();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenCart, setIsModalOpenCart] = useState([false, false]);
+    const { styles } = useStyle();
+    const token = useTheme()
+    const toggleModal = (idx: number, target: boolean) => {
+        setIsModalOpenCart((p) => {
+            p[idx] = target;
+            return [...p];
+        });
+    };
+    //STYLE
+    const classNames = {
+        mask: styles['my-modal-mask'],
+        header: styles['my-modal-header'],
+        content: styles['my-modal-content'],
+    };
+
+    const modalStyles = {
+        header: {
+            borderLeft: `5px solid ${token.colorPrimary}`,
+            borderRadius: 0,
+            paddingInlineStart: 5,
+        },
+        mask: {
+            backdropFilter: 'blur(10px)',
+        },
+        content: {
+            boxShadow: '0 0 30px #999',
+        }
+    }
+    //END STYLE
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -33,21 +82,14 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                     pauseOnHover,
                 });
             };
-    const userId = localStorage.getItem("userId") || 0;
+    // CART
+    const userId = localStorage.getItem("userId");
     const { data: pro, isLoading } = useQuery({
         queryKey: ["product"],
         queryFn: () => instance.get(`/product`),
     });
     const queyClient = useQueryClient();
     console.log("id", pro?.data);
-    const { data, isLoading: favourite } = useQuery({
-        queryKey: ["favourite"],
-        queryFn: () => instance.get(`/favourite/${userId}`),
-        enabled: !!userId, //Chỉ gọi lại API khi có userID
-    });
-    const favouriteProductIds = data?.data.productFavourite.map(
-        (item: any) => item.productId,
-    );
     const mutation = useMutation({
         mutationFn: async (id: string) => {
             if (!userId) {
@@ -57,27 +99,19 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 const { data } = await instance.post("/carts/add-to-cart/", {
                     userId,
                     productId: id,
-                    quantity: 1,
+                    quantity: localQuantity,
                 });
                 return data;
             } catch (error: any) {
                 throw new Error(error.message || "Failed to add item to cart");
             }
         },
-        onSuccess: (data) => {
-            if (data && data.cart) {
-                openNotification(false)(
-                    "success",
-                    "Thêm giỏ hàng thành công",
-                    "Sản phẩm đã được thêm vào giỏ hàng.",
-                );
-            } else {
-                openNotification(false)(
-                    "error",
-                    "Thêm giỏ hàng thất bại",
-                    "Dữ liệu giỏ hàng không hợp lệ.",
-                );
-            }
+        onSuccess: () => {
+            openNotification(false)(
+                "success",
+                "Thêm giỏ hàng thành công",
+                "Sản phẩm đã được thêm vào giỏ hàng.",
+            )
         },
         onError: (error: any) => {
             openNotification(false)(
@@ -87,6 +121,24 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
             );
         },
     });
+    const handleQuantityChange = (action: "increase" | "decrease") => {
+        if (action === "increase") {
+            setLocalQuantity((count) => count + 1)
+        } else if (action === "decrease" && localQuantity > 1) {
+            setLocalQuantity((count) => count - 1)
+        }
+    }
+    //END CART
+
+    // Favourite
+    const { data, isLoading: favourite } = useQuery({
+        queryKey: ["favourite"],
+        queryFn: () => instance.get(`/favourite/${userId}`),
+        enabled: !!userId, //Chỉ gọi lại API khi có userID
+    });
+    const favouriteProductIds = data?.data.productFavourite.map(
+        (item: any) => item.productId,
+    );
     const { mutate: AddFavourite } = useMutation({
         mutationFn: async (productId: string) => {
             try {
@@ -131,6 +183,8 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
             openNotification(false)("error", "Lỗi", "Thất Bại");
         },
     });
+    //END FAVOURITE
+
     const exchangeRate = 1;
     const formatCurrency = (price: number) => {
         const priceInVND = price * exchangeRate;
@@ -150,12 +204,92 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
     if (favourite) return (
         <div>
             <Skeleton />
-
         </div>
     );
     return (
         <>
             {contextHolder}
+            <ConfigProvider
+                modal={{
+                    classNames,
+                    styles: modalStyles,
+                }}
+            >
+                <Modal
+                    title="Thêm Sản Phẩm Vào Giỏ Hàng"
+                    open={isModalOpenCart[1]}
+                    onOk={() =>
+                        mutation.mutate(product._id)}
+                    onCancel={() => toggleModal(1, false)}
+                    okText={'Thêm Vô Giỏ Hàng'}
+                    cancelText="Hủy"
+                >
+                    <div className="flex flex-row space-x-5 mt-6">
+                        <div className="w-1/2">
+                            <img src={product.img} alt="" className="w-44" />
+                        </div>
+                        <div className="w-1/2 shrink-1">
+                            <h1 className="text-gray-800 font-medium text-lg">
+                                {product.name}
+                            </h1>
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-2 mb-6">
+
+                            </div>
+                            <div className="items-center text-sm mb-2">
+                                <p className="p text-violet-700 mr-2 pb-2">
+                                    Trong Kho:  {product.countInstock}x,
+                                </p>
+                                <p className="text-violet-700">Tình Trạng: {product.countInstock === 0 ? (
+                                    'Hết Hàng') : ("Còn Hàng")}</p>
+                            </div>
+                            <div >
+                                <p className="font-semibold mb-4 text-md"> Số Lượng</p>
+                                <div className="flex items-center *:w-9 *:h-9 gap-x-1 *:grid *:place-items-center">
+                                    <button
+                                        onClick={() => handleQuantityChange("decrease")}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={14}
+                                            height={14}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={5}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-minus"
+                                        >
+                                            <path d="M5 12h14" />
+                                        </svg>
+                                    </button>
+                                    <div className="bg-[#F4F4F4]">{localQuantity}</div>{" "}
+                                    {/* Show local quantity */}
+                                    <button
+                                        onClick={() => handleQuantityChange("increase")}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={14}
+                                            height={14}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={5}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-plus"
+                                        >
+                                            <path d="M5 12h14" />
+                                            <path d="M12 5v14" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            </ConfigProvider>
             <div className="relative block rounded-3xl border border-gray-400">
                 <div className="relative group w-full h-[240px] bg-[#F4F4F4] rounded-3xl grid place-items-center">
                     {userId ? (
@@ -239,15 +373,12 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                     </p>
                     {userId ? (
                         <>
-                            <button
-                                onClick={() => mutation.mutate(product._id)}
-                                disabled={mutation.isPending}
-                                className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16 ml-3 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
+                            <Button type="primary" onClick={() => toggleModal(1, true)} className="mt-4  block rounded-md border border-green-900 bg-green-600 px-14 h-10 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
                             >
                                 {mutation.isPending
                                     ? "Loading..."
                                     : "Add to cart"}
-                            </button>
+                            </Button>
                         </>
                     ) : (
                         <div>
