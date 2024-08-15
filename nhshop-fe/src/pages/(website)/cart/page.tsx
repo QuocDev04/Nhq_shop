@@ -35,7 +35,7 @@ const CartPage = () => {
                     </div>
                 </div>
             </div>
-            <main className="lg:w-[1170px] mb:w-[342px] lg:mt-8 mb:mt-6 mx-auto grid lg:grid-cols-[686px_420px] mb:grid-cols-[100%] justify-between *:w-full pb-10">
+            <main className="lg:w-[1170px] mb:w-[342px] lg:mt-8 mb:mt-6 mx-auto grid lg:grid-cols-[686px_420px] mb:grid-cols-[100%] justify-between *:w-full">
                 <TableCart/>
                 <PayCart/>
                 <Delivery/>

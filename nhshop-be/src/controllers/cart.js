@@ -5,26 +5,18 @@ import Product from "../models/product";
 // Lấy danh sách sản phẩm thuộc 1 user
 export const getCartByUserId = async (req, res) => {
   const { userId } = req.params;
-  console.log("Received request to get cart for userId:", userId); // Log userId
-
   try {
     const cart = await Cart.findOne({ userId }).populate("products.productId").populate("products.attributes.ValueAttributeId");
-    console.log("Fetched cart:", cart); // Log fetched cart
-
     if (!cart) {
-      console.log("Cart not found for userId:", userId); // Log if cart not found
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ error: "Cart not found" });
     }
-
-    // Filter out items with null productId
-    cart.products = cart.products.filter((item) => item.productId !== null);
-
+    cart.products = cart.products.filter((item) => item.productId);
     const cartData = {
       products: cart.products.map((item) => {
         const price = item.productId.price;
-        const discount = item.productId.discount || 0; // Assuming discount is stored in product and default to 0 if not present
+        const discount = item.productId.discount || 0;
         const finalPrice = price - discount;
 
         return {
@@ -59,12 +51,8 @@ export const getCartByUserId = async (req, res) => {
         0
       ),
     };
-
-    console.log("Cart data to be returned:", cartData); // Log cart data
-
     return res.status(StatusCodes.OK).json(cartData);
   } catch (error) {
-    console.error("Failed to get cart data:", error); // Log the actual error for debugging
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to get cart data" });

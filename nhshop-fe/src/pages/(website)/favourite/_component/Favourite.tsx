@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     AiTwotoneShopping,
     AiTwotoneDelete,
@@ -22,7 +22,7 @@ const Favourite = () => {
         queryFn: () => instance.get(`/favourite/${userId}`),
         enabled:!!userId
     });
-
+    const navigate = useNavigate()
     const openNotification =
         (pauseOnHover: boolean) =>
         (type: "success" | "error", message: string, description: string) => {
@@ -71,7 +71,6 @@ const Favourite = () => {
             );
         },
     });
-
     const { mutate: addCart } = useMutation({
         mutationFn: async (id: string) => {
             try {
@@ -105,7 +104,6 @@ const Favourite = () => {
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
     );
-console.log(favourite?.data);
 
     const items: TabsProps["items"] = [
         {
@@ -130,8 +128,7 @@ console.log(favourite?.data);
             ),
             children: (
                 <>
-                    {favourite?.data.productFavourite.length === 0 ? (
-                        <div>
+                    {!userId ? (
                             <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                                 imageStyle={{ height: 60 }}
@@ -142,7 +139,6 @@ console.log(favourite?.data);
                                     </Button>
                                 </Link>
                             </Empty>
-                        </div>
                     ) : (
                         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {favourite?.data.productFavourite.map(
@@ -236,7 +232,22 @@ console.log(favourite?.data);
                     </svg>
                 </button>
             ),
-            children: "Content of Tab Pane 2",
+            children: (
+                <>
+                    {!userId ? (
+                        <>
+                            <Empty
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                imageStyle={{ height: 60 }}
+                            >
+                                    <Button type="primary" onClick={()=> navigate('/login')}>
+                                        Đăng Nhập Để Xem Mục Yêu Thích                                        
+                                    </Button>
+                            </Empty> 
+                        </>
+                    ) : ('')} </>
+             
+            ),
         },
     ];
 
