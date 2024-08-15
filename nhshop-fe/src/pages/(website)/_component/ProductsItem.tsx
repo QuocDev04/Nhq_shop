@@ -2,7 +2,7 @@
 import { IProduct } from "@/common/types/IProduct";
 import instance from "@/configs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, ConfigProvider, Empty, Modal, notification, Skeleton } from "antd";
+import { ConfigProvider, Empty, Form, Modal, notification, Skeleton } from "antd";
 import { useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { Link } from "react-router-dom";
@@ -29,6 +29,8 @@ const useStyle = createStyles(({ token }) => ({
     },
 }));
 const ProductsItems = ({ product }: ProductsItemProps) => {
+    const [form] = Form.useForm()
+    const [selectedSize, setSelectedSize] = useState(null);
     const [localQuantity, setLocalQuantity] = useState(1);
     const [api, contextHolder] = notification.useNotification();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,6 +85,10 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 });
             };
     // CART
+    const handleSizeClick = (ValueAttributeId: any) => {
+        setSelectedSize(ValueAttributeId);
+        console.log("Selected Size ID:", ValueAttributeId); 
+    };
     const userId = localStorage.getItem("userId");
     const { data: pro, isLoading } = useQuery({
         queryKey: ["product"],
@@ -96,10 +102,12 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 throw new Error("User ID is missing. Please log in.");
             }
             try {
+                const attributes = { ValueAttributeId: selectedSize };
                 const { data } = await instance.post("/carts/add-to-cart/", {
                     userId,
                     productId: id,
                     quantity: localQuantity,
+                    attributes
                 });
                 return data;
             } catch (error: any) {
@@ -112,12 +120,13 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 "Thêm giỏ hàng thành công",
                 "Sản phẩm đã được thêm vào giỏ hàng.",
             )
+            form.resetFields()
         },
-        onError: (error: any) => {
+        onError: () => {
             openNotification(false)(
                 "error",
                 "Thêm giỏ hàng thất bại",
-                `Thêm giỏ hàng thất bại: ${error.message}`,
+                `Vui Lòng Chọn Size`,
             );
         },
     });
@@ -128,6 +137,10 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
             setLocalQuantity((count) => count - 1)
         }
     }
+    const sizeAttributes =
+        product?.attributes.filter((size: any) =>
+            size.name.toLowerCase().includes("size"),
+        ) || [];
     //END CART
 
     // Favourite
@@ -226,15 +239,35 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                 >
                     <div className="flex flex-row space-x-5 mt-6">
                         <div className="w-1/2">
-                            <img src={product.img} alt="" className="w-44" />
+                            <img src={product.gallery[0]} alt="" className="w-44" />
                         </div>
-                        <div className="w-1/2 shrink-1">
+                        <div  className="w-1/2 shrink-1" >
                             <h1 className="text-gray-800 font-medium text-lg">
                                 {product.name}
                             </h1>
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-2 mb-6">
-
-                            </div>
+                                <div className="flex flex-col gap-y-3 lg:mt-0 mb:-mt-1">
+                                    {sizeAttributes.map((item: any) => (
+                                        <section
+                                            className="lg:px-[13.5px] lg:py-2.5 mb:px-3.5 mb:py-2 rounded flex gap-x-4 duration-200"
+                                            key={item._id}
+                                        >
+                                            {item.values.map((value: any) => (
+                                                <button
+                                                    className={`hover:border border border-[#17AF26] px-3 py-1 rounded ${selectedSize === value._id
+                                                            ? "bg-[#17AF26] text-white"
+                                                            : "bg-white text-[#17AF26]"
+                                                        }`}
+                                                    onClick={() =>
+                                                        handleSizeClick(value._id)
+                                                    }
+                                                    key={value._id}
+                                                >
+                                                    {value.name}
+                                                </button>
+                                            ))}
+                                        </section>
+                                    ))}
+                                </div>                                
                             <div className="items-center text-sm mb-2">
                                 <p className="p text-violet-700 mr-2 pb-2">
                                     Trong Kho:  {product.countInstock}x,
@@ -246,6 +279,7 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                                 <p className="font-semibold mb-4 text-md"> Số Lượng</p>
                                 <div className="flex items-center *:w-9 *:h-9 gap-x-1 *:grid *:place-items-center">
                                     <button
+                                        className="text-lg font-medium bg-blue-500 text-white px-3 py-1 rounded duration-300 hover:bg-blue-600"
                                         onClick={() => handleQuantityChange("decrease")}
                                     >
                                         <svg
@@ -266,6 +300,7 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                                     <div className="bg-[#F4F4F4]">{localQuantity}</div>{" "}
                                     {/* Show local quantity */}
                                     <button
+                                        className="text-lg font-medium bg-blue-500 text-white px-3 py-1 rounded duration-300 hover:bg-blue-600"
                                         onClick={() => handleQuantityChange("increase")}
                                     >
                                         <svg
@@ -290,8 +325,8 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
                     </div>
                 </Modal>
             </ConfigProvider>
-            <div className="relative block rounded-3xl border border-gray-400">
-                <div className="relative group w-full h-[240px] bg-[#F4F4F4] rounded-3xl grid place-items-center">
+            <div className="rounded-3xl grid place-items-center ">
+                <div className="relative h-[220px]">
                     {userId ? (
                         <>
                             <button
@@ -356,37 +391,35 @@ const ProductsItems = ({ product }: ProductsItemProps) => {
 
                     <Link to={`/products/${product._id}`}>
                         <img
-                            className="h-[230px] rounded-3xl"
-                            src={product.img}
+                            className="w-60 rounded-3xl"
+                            src={product.gallery[0]}
                             alt=""
                         />
                     </Link>
                 </div>
-                <div className="p-4 text-center">
-                    <strong className="text-xl font-medium text-gray-900">
+                <div className="p-4 mt-20 text-center">
+                    <strong className="text-md font-medium text-gray-900">
                         {" "}
                         {product.name}{" "}
                     </strong>
 
-                    <p className="mt-2 text-pretty text-lg text-gray-700">
+                    <p className="mt-2 text-pretty text-md text-gray-700">
                         {formatCurrency(product.price)}
                     </p>
                     {userId ? (
                         <>
-                            <Button type="primary" onClick={() => toggleModal(1, true)} className="mt-4  block rounded-md border border-green-900 bg-green-600 px-14 h-10 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
+                            <button onClick={() => toggleModal(1, true)} className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16   text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
                             >
-                                {mutation.isPending
-                                    ? "Loading..."
-                                    : "Add to cart"}
-                            </Button>
+                                     Thêm Vào Giỏ Hàng
+                            </button>
                         </>
                     ) : (
                         <div>
                             <button
                                 onClick={showModal}
-                                className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16 ml-3 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
+                                className="mt-4 block rounded-md border border-green-900 bg-green-600 px-16  text-sm font-medium uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-green-900"
                             >
-                                Add to cart
+                                Thêm Vào Giỏ Hàng
                             </button>
                         </div>
                     )}

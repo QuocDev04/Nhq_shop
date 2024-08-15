@@ -19,7 +19,7 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    img: {
+    gallery: {
       type: String,
       required: true,
     },
@@ -30,6 +30,14 @@ const orderItemSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
+    },
+    attributes:
+    {
+      ValueAttributeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ValueAttribute",
+        required: true,
+      },
     },
   },
   { _id: false } // Không tạo _id cho mỗi item trong mảng products);
@@ -66,7 +74,7 @@ const orderSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"User",
+      ref: "User",
       required: true,
     },
     items: [orderItemSchema],

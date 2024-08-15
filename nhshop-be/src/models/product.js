@@ -5,10 +5,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    img: {
-      type: String,
-      required: true,
-    },
+
     category: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,13 +36,13 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
     },
     tags: [String],
-    // attributes: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Attribute",
-    //     required: true,
-    //   },
-    // ],
+    attributes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Attribute",
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,

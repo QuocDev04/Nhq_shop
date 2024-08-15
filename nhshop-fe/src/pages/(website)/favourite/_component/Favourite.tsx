@@ -20,6 +20,7 @@ const Favourite = () => {
     const { data: favourite, isLoading } = useQuery({
         queryKey: ["favourite"],
         queryFn: () => instance.get(`/favourite/${userId}`),
+        enabled:!!userId
     });
 
     const openNotification =
@@ -98,6 +99,13 @@ const Favourite = () => {
             );
         },
     });
+    if (isLoading) return (
+        <div>
+            {" "}
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </div>
+    );
+console.log(favourite?.data);
 
     const items: TabsProps["items"] = [
         {
@@ -152,7 +160,7 @@ const Favourite = () => {
                                                 >
                                                     <img
                                                         alt="example"
-                                                        src={item.img}
+                                                        src={item.gallery}
                                                         className="m-auto"
                                                     />
                                                 </Link>
@@ -232,12 +240,7 @@ const Favourite = () => {
         },
     ];
 
-    if (isLoading) return (
-        <div>
-            {" "}
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-        </div>
-    );
+
 
     return (
         <>

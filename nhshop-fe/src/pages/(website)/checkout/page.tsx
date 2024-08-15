@@ -386,36 +386,39 @@ const CheckOutPages = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            <div className="rounded-lg mt-3">
+                            <div className="rounded-lg mt-3 ">
                                 {cart.totalQuantity === 0 ? (
                                     ""
                                 ) : (
-                                    <ul className="text-xs grid grid-cols-2">
+                                    <ul className="text-xs grid grid-cols-3 gap-3">
                                         {cart.products.map((product:any) => (
                                             <li
-                                                className="flex items-center gap-y-4"
+                                                className="flex items-center gap-y-4 border rounded-lg"
                                                 key={product.productId}
                                             >
                                                 <Image
-                                                    src={product.img}
+                                                    src={product.gallery[0]}
                                                     alt={product.name}
                                                     style={{ width: 50 }}
                                                 />
-                                                <div className="flex justify-between gap-20">
+                                                <div className="mx-3 gap-20">
                                                     <h3 className=" text-[#9D9EA2]">
-                                                        {product.name}
+                                                       Tên: {product.name}
                                                     </h3>
                                                     <dl className="mt-0.5 text-gray-600">
                                                         <div>
-                                                            <dd className="inline text-sm text-red-500">
-                                                                {formatCurrency(
+                                                            <dd className="inline text-red-500">
+                                                               Giá: {formatCurrency(
                                                                     product.price,
                                                                 )}
                                                             </dd>
                                                         </div>
                                                     </dl>
-                                                    <h3 className=" text-[#9D9EA2]">
-                                                        {product.quantity}x
+                                                    <h3 className=" text-[#9D9EA2] mr-2">
+                                                       Số Lượng: {product.quantity}x
+                                                    </h3>
+                                                    <h3>
+                                                        Size: {product.attributes.ValueAttributeId.name}
                                                     </h3>
                                                 </div>
                                             </li>

@@ -10,7 +10,14 @@ interface Product {
     quantity: number;
     name: string;
     price: number;
-    img: string;
+    gallery: string;
+    attributes: {
+        ValueAttributeId: ValueAttributeId
+    }
+}
+interface ValueAttributeId {
+    _id: string,
+    name: string
 }
 interface Addresses {
     city: string;
@@ -46,14 +53,14 @@ const Bill = () => {
     });
 
     const order: Order = data;
-       const exchangeRate = 1; // Tỷ giá hối đoái USD -> VND
-       const formatCurrency = (price: number) => {
-           const priceInVND = price * exchangeRate;
-           return priceInVND.toLocaleString("vi-VN", {
-               style: "currency",
-               currency: "VND",
-           });
-       };
+    const exchangeRate = 1; // Tỷ giá hối đoái USD -> VND
+    const formatCurrency = (price: number) => {
+        const priceInVND = price * exchangeRate;
+        return priceInVND.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        });
+    };
     if (isLoading) {
         return (
             <div>
@@ -241,8 +248,8 @@ const Bill = () => {
                                         key={item.productId}
                                     >
                                         <img
-                                            src={item.img}
-                                            className="w-[90px] h-[70px] rounded-md"
+                                            src={item.gallery}
+                                            className="w-20 rounded-md"
                                         />
                                         <div className="flex flex-col space-y-2 ml-2">
                                             <p className="text-sm font-medium">
@@ -254,6 +261,9 @@ const Bill = () => {
                                             <p className="text-sm font-medium">
                                                 Giá:{" "}
                                                 {formatCurrency(item.price)}
+                                            </p>
+                                            <p>
+                                                Size: {item.attributes.ValueAttributeId.name}
                                             </p>
                                         </div>
                                     </div>

@@ -11,6 +11,7 @@ export interface IProduct {
     countInstock: number,
     discount: number,
     status: string,
+    attributes:string[]
     tags: string[];
     gallery: string[];
 }
@@ -23,6 +24,7 @@ export interface AddIProduct {
     featured: boolean,
     countInstock: number,
     discount:number,
+    attribute: string[],
     tags: string[];
     gallery: string[];
 }   

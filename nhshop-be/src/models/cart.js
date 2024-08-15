@@ -10,7 +10,7 @@ const cartItemSchema = new Schema(
     name: {
       type: String,
     },
-    img: {
+    gallery: {
       type: String,
     },
     quantity: {
@@ -18,20 +18,15 @@ const cartItemSchema = new Schema(
       required: true,
       min: 1,
     },
-    attribute: [
+    attributes: 
       {
-        attributeId: {
-          type: Schema.Types.ObjectId,
-          ref: "Attribute",
-          required: true,
-        },
         ValueAttributeId: {
           type: Schema.Types.ObjectId,
           ref: "ValueAttribute",
           required: true,
         },
       },
-    ],
+    
     price: {
       type: Number,
     },

@@ -5,14 +5,11 @@ import FeaturedProduct from "./_component/rowright/FeaturedProduct";
 import MenuDescription from "./_component/rowright/MenuDescription";
 import Row1 from "./_component/rowright/row1";
 import Row2 from "./_component/rowright/row2";
-// import Row4 from "./_component/rowright/row4";
 import Row5 from "./_component/rowright/row5";
 import { useQuery } from "@tanstack/react-query";
 import instance from "@/configs/axios";
 import { useParams } from "react-router-dom";
 import { Empty } from "antd";
-
-
 const DetailPage = () => {
 
     useEffect(()=>{
@@ -46,11 +43,6 @@ const DetailPage = () => {
 
                             {/* row 2 */}
                             <Row2 />
-
-                            {/* row 3 */}
-
-                            {/* row 4 */}
-                            {/* <Row4 /> */}
 
                             {/* row 5 */}
                             <Row5 />

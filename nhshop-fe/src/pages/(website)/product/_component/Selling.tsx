@@ -32,7 +32,7 @@ const Selling = () => {
                 <strong className="lg:text-2xl mb:text-lg lg:tracking-[-0.5px] mb:mx-12 lg:mx-0 font-medium">
                     Top Selling
                 </strong>
-                <div className="lg:w-[1000px] mb:w-[355px] sm:w-[640px] md:w-[768px] xl:w-[00px] 2xl:w-[900px] mx-auto snap-x duration-300 scroll-smooth grid grid-flow-col *:lg:w-[850px] *:mb:w-[240px] lg:pt-[27px] mb:pt-6  lg:gap-x-[32px] gap-x-6">
+                <div className=" mx-auto  duration-300 scroll-smooth grid grid-flow-col *:lg:w-[850px] *:mb:w-[240px] lg:pt-[27px] mb:pt-6  lg:gap-x-[32px] gap-x-6">
                     <Swiper
                         slidesPerView={3}
                         modules={[Navigation]}

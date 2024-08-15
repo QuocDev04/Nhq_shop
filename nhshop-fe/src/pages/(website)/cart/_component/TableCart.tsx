@@ -11,12 +11,18 @@ interface Product {
     quantity: number;
     name: string;
     price: number;
-    img: string;
+    gallery: string[];
     discount: number;
-    attribute: string[];
+    attributes: {
+        ValueAttributeId: ValueAttributeId;
+    };
     finalPrice: number;
 }
-
+interface ValueAttributeId {
+    _id: string;
+    name: string;
+    quantity: number;
+}
 export interface Cart {
     _id: string;
     userId: string;
@@ -34,13 +40,11 @@ const TableCart = () => {
     const { data, isLoading, isError } = useQuery({
         queryKey: ["cart"],
         queryFn: async () => {
-            if (!userId) {
-                throw new Error("User ID is missing");
-            }
             const { data } = await instance.get(`/carts/${userId}`);
             return data;
         },
     });
+
     const exchangeRate = 1; // Tỷ giá hối đoái USD -> VND
     const formatCurrency = (price: number) => {
         const priceInVND = price * exchangeRate;
@@ -51,35 +55,29 @@ const TableCart = () => {
     };
     const openNotification =
         (pauseOnHover: boolean) =>
-        (type: "success" | "error", message: string, description: string) => {
-            api.open({
-                message,
-                description,
-                type,
-                showProgress: true,
-                pauseOnHover,
-            });
-        };
-
+            (type: "success" | "error", message: string, description: string) => {
+                api.open({
+                    message,
+                    description,
+                    type,
+                    showProgress: true,
+                    pauseOnHover,
+                });
+            };
     const { mutate: Remove } = useMutation({
-        mutationFn: async (productId: string) => {
-            const userId = localStorage.getItem("userId");
-            if (!userId) {
-                throw new Error("Vui lòng đăng nhập");
-            }
+        mutationFn: async ({ productId, attributes }: { productId: string, attributes: { ValueAttributeId: string } }) => {
             try {
                 const { data } = await instance.post("/carts/remove", {
                     userId,
                     productId,
+                    attributes
                 });
                 return data.cart;
             } catch (error: any) {
                 throw new Error(error.message || "Xóa sản phẩm thất bại");
             }
         },
-        onSuccess: (data) => {
-            data && data.cart;
-
+        onSuccess: () => {
             openNotification(false)(
                 "success",
                 "Sản phẩm đã được xóa từ giỏ hàng.",
@@ -98,7 +96,7 @@ const TableCart = () => {
         },
     });
     const { mutate: Increase } = useMutation({
-        mutationFn: async (productId: string) => {
+        mutationFn: async ({ productId, attributes }: { productId: string, attributes: { ValueAttributeId: string } }) => {
             const userId = localStorage.getItem("userId");
             if (!userId) {
                 throw new Error("Vui lòng đăng nhập");
@@ -106,6 +104,7 @@ const TableCart = () => {
             const { data } = await instance.post("/carts/increase", {
                 userId,
                 productId,
+                attributes
             });
             return data.cart;
         },
@@ -116,7 +115,7 @@ const TableCart = () => {
         },
     });
     const { mutate: Decrease } = useMutation({
-        mutationFn: async (productId: string) => {
+        mutationFn: async ({ productId, attributes }: { productId: string, attributes: { ValueAttributeId: string } }) => {
             const userId = localStorage.getItem("userId");
             if (!userId) {
                 throw new Error("Vui lòng đăng nhập");
@@ -124,6 +123,7 @@ const TableCart = () => {
             const { data } = await instance.post("/carts/decrease", {
                 userId,
                 productId,
+                attributes
             });
             return data.cart;
         },
@@ -137,9 +137,11 @@ const TableCart = () => {
         mutationFn: async ({
             productId,
             quantity,
+            attributes
         }: {
             productId: string;
             quantity: number;
+            attributes: { ValueAttributeId: string }
         }) => {
             const userId = localStorage.getItem("userId");
             if (!userId) {
@@ -149,6 +151,7 @@ const TableCart = () => {
                 userId,
                 productId,
                 quantity,
+                attributes,
             });
             return data.cart;
         },
@@ -159,9 +162,6 @@ const TableCart = () => {
         },
     });
     const cart: Cart = data;
-    const handleQuantityChange = (productId: string, quantity: number) => {
-        updateQuantity({ productId, quantity });
-    };
     if (isLoading) {
         return (
             <div>
@@ -226,32 +226,32 @@ const TableCart = () => {
                                             key={product.productId}
                                         >
                                             <Image
-                                                src={product.img}
+                                                src={product.gallery[0]}
                                                 alt={product.name}
                                                 style={{ width: 100 }}
                                             />
                                             <div>
-                                                <h3 className="text-xl text-gray-900">
+                                                <h3 className="text-md text-gray-900">
                                                     {product.name}
                                                 </h3>
 
-                                                <dl className="mt-0.5 space-y-px text-[10px] ext-gray-900">
+                                                <dl className="mt-0.5 space-y-px ext-gray-900">
                                                     <div>
-                                                        <dt className="inline text-lg">
+                                                        <dt className="inline text-md">
                                                             Price: {""}
                                                         </dt>
-                                                        <dd className="inline text-lg text-red-500">
+                                                        <dd className="inline text-md text-red-500">
                                                             {formatCurrency(
                                                                 product.price,
                                                             )}
                                                         </dd>
                                                     </div>
                                                 </dl>
-{/* 
-                                                <h3 className="text-lg text-gray-900">
+
+                                                <h3 className="text-md text-gray-900" key={product.attributes.ValueAttributeId._id}>
                                                     {" "}
-                                                    Size:{}
-                                                </h3> */}
+                                                    Size:{product.attributes?.ValueAttributeId?.name}
+                                                </h3>
                                             </div>
 
                                             <div className="flex flex-1 items-center justify-end gap-2">
@@ -260,7 +260,12 @@ const TableCart = () => {
                                                         <button
                                                             onClick={() =>
                                                                 Decrease(
-                                                                    product.productId,
+                                                                    {
+                                                                        productId: product.productId,
+                                                                        attributes: {
+                                                                            ValueAttributeId: product.attributes.ValueAttributeId._id
+                                                                        }
+                                                                    }
                                                                 )
                                                             }
                                                             type="button"
@@ -276,12 +281,14 @@ const TableCart = () => {
                                                                 product.quantity
                                                             }
                                                             onChange={(e) =>
-                                                                handleQuantityChange(
-                                                                    product.productId,
-                                                                    parseInt(
-                                                                        e.target
-                                                                            .value,
-                                                                    ),
+                                                                updateQuantity(
+                                                                    {
+                                                                        productId: product.productId,
+                                                                        quantity: parseInt(e.target.value),
+                                                                        attributes: {
+                                                                            ValueAttributeId: product.attributes.ValueAttributeId._id
+                                                                        }
+                                                                    },
                                                                 )
                                                             }
                                                             className="h-10 w-16 mr-5 rounded border border-gray-700 text-center [-moz-appearance:_textfield] sm:text-sm [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
@@ -290,7 +297,12 @@ const TableCart = () => {
                                                         <button
                                                             onClick={() =>
                                                                 Increase(
-                                                                    product.productId,
+                                                                    {
+                                                                        productId: product.productId,
+                                                                        attributes: {
+                                                                            ValueAttributeId: product.attributes.ValueAttributeId._id
+                                                                        }
+                                                                    }
                                                                 )
                                                             }
                                                             type="button"
@@ -302,12 +314,17 @@ const TableCart = () => {
                                                 </div>
                                                 <Popconfirm
                                                     onConfirm={() =>
-                                                        Remove(
-                                                            product.productId,
-                                                        )
+                                                        Remove({
+                                                            productId: product.productId,
+                                                            attributes: {
+                                                                ValueAttributeId: product.attributes.ValueAttributeId._id
+                                                            }
+                                                        })
                                                     }
-                                                    title="Delete the product"
-                                                    description="Are you sure to delete this product?"
+                                                    title="Xóa sản phẩm"
+                                                    cancelText={"Hủy"}
+                                                    okText="Xóa"
+                                                    description="Bạn Chắc Chắn Xóa Sản Phẩm Này Chứ?"
                                                     icon={
                                                         <QuestionCircleOutlined
                                                             style={{

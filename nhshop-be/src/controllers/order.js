@@ -8,16 +8,25 @@ export const createOrder = async (req, res) => {
 
   try {
     // Lấy dữ liệu giỏ hàng của người dùng
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate('products.productId');
 
     if (!cart) {
       return res.status(404).json({ error: "Cart not found" });
     }
+    // Lấy tên và gallery từ sản phẩm
+    const orderItems = cart.products.map(product => ({
+      productId: product.productId._id,
+      name: product.productId.name,
+      gallery: product.productId.gallery[0],
+      price: product.price,
+      quantity: product.quantity,
+      attributes: product.attributes
+    }));
 
     // Tạo đơn hàng mới
     const order = await Order.create({
       userId,
-      items: cart.products,
+      items: orderItems,
       totalPrice: cart.finalTotalPrice,
       firstName,
       lastName,
@@ -26,7 +35,6 @@ export const createOrder = async (req, res) => {
       email,
       orderNotes,
     });
-
     // Xóa giỏ hàng sau khi tạo đơn hàng
     await Cart.deleteOne({ userId });
 
@@ -40,12 +48,7 @@ export const createOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
   try {
-    const order = await Order.find();
-    if (order.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "No orders found" });
-    }
+    const order = await Order.find().populate('items.attributes.ValueAttributeId');
     return res.status(StatusCodes.OK).json(order);
   } catch (error) {
     return res
@@ -56,7 +59,7 @@ export const getOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const { userId, _id } = req.params;
-    const order = await Order.findOne({ userId, _id });
+    const order = await Order.findOne({ userId, _id }).populate('items.attributes.ValueAttributeId');;
     if (!order) {
       return res
         .status(StatusCodes.NOT_FOUND)

@@ -77,7 +77,9 @@ const Information = () => {
     };
     // const userId = localStorage.getItem("userId")
     const { id } = useParams();
-    const { data: user } = useQuery({
+    const { data: user,
+        isLoading,
+        isError, } = useQuery({
         queryKey: ["user", id],
         queryFn: () => instance.get(`/user/${id}`),
     });
@@ -96,14 +98,42 @@ const Information = () => {
     };
     const {
         data: order,
-        isLoading,
-        isError,
     } = useQuery({
         queryKey: ["order"],
         queryFn: () => instance.get("/orders"),
     });
-    console.log(order?.data);
+    console.log("order",order?.data);
     //ENDTABS 2
+    if (isLoading)
+        return (
+            <>
+                <div>
+                    <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        imageStyle={{ height: 60 }}
+                    >
+                        <Link to={"/shop"}>
+                            <Button type="primary">Quay lại</Button>
+                        </Link>
+                    </Empty>
+                </div>
+            </>
+        );
+    if (isError)
+        return (
+            <>
+                <div>
+                    <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        imageStyle={{ height: 60 }}
+                    >
+                        <Link to={"/shop"}>
+                            <Button type="primary">Quay lại</Button>
+                        </Link>
+                    </Empty>
+                </div>
+            </>
+        );
     const items: TabsProps["items"] = [
         {
             key: "1",
@@ -264,7 +294,19 @@ const Information = () => {
                     <h1 className="font-medium text-3xl text-center">
                         Thông Tin Đơn Hàng
                     </h1>
-                    {order?.data.map((item: any) => (
+                    {order?.data.length === 0 ?(
+                        <>
+                                <Empty
+                                className="w-[1150px]"
+                                >
+                                    <Link to={"/shop"}>
+                                        <Button type="primary">Quay lại Để Mua</Button>
+                                    </Link>
+                                </Empty>
+                        </>
+                    ):(
+                       <>
+                        {order?.data.map((item: any) => (
                         <div className="grid grid-cols-2 relative gap-8 mt-6 my-16 border py-10 border-black rounded-3xl text-center ">
                             <span className="absolute -right-px -top-px rounded-bl-3xl rounded-tr-3xl bg-rose-600 px-6 py-4 font-medium uppercase tracking-widest text-white">
                                 {item.status}
@@ -397,40 +439,14 @@ const Information = () => {
                             </div>
                         </div>
                     ))}
+                       </> 
+                    )}
+                   
                 </div>
             ),
         },
     ];
-    if (isLoading)
-        return (
-            <>
-                <div>
-                    <Empty
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        imageStyle={{ height: 60 }}
-                    >
-                        <Link to={"/shop"}>
-                            <Button type="primary">Quay lại</Button>
-                        </Link>
-                    </Empty>
-                </div>
-            </>
-        );
-    if (isError)
-        return (
-            <>
-                <div>
-                    <Empty
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        imageStyle={{ height: 60 }}
-                    >
-                        <Link to={"/shop"}>
-                            <Button type="primary">Quay lại</Button>
-                        </Link>
-                    </Empty>
-                </div>
-            </>
-        );
+
     return (
         <div className="container mx-auto max-w-[1440px] mb-96 p-4 pt-14 md:p-8 ">
             <div className="mx-auto max-w-[1200px] rounded-md bg-white border border-black">

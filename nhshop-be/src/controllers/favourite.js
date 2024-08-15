@@ -18,7 +18,7 @@ export const getFavouriteByUserId = async (req, res) => {
           productId: item.productId._id,
           name: item.productId.name,
           price: item.productId.price,
-          img: item.productId.img,
+          gallery: item.productId.gallery[0],
         };
       }),
     };

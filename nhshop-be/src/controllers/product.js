@@ -6,12 +6,12 @@ export const getAllProduct = async (req, res) => {
   try {
     const getAll = await Product.find()
       .populate("category")
-      // .populate({
-      //   path: "attributes",
-      //   populate: {
-      //     path: "values",
-      //   },
-      // });
+      .populate({
+        path: "attributes",
+        populate: {
+          path: "values",
+        },
+      });
     res.json(getAll);
   } catch (error) {
     res.status(400).json({
@@ -24,12 +24,12 @@ export const getIdProduct = async (req, res) => {
   try {
     const getId = await Product.findById(req.params.id, req.body)
       .populate("category")
-      // .populate({
-      //   path: "attributes", 
-      //   populate: {
-      //     path: "values", 
-      //   },
-      // });
+      .populate({
+        path: "attributes", 
+        populate: {
+          path: "values", 
+        },
+      });
     res.json(getId);
   } catch (error) {
     res.status(400).json({
@@ -49,8 +49,20 @@ export const create = async (req, res) => {
 
 export const putProduct = async (req, res) => {
   try {
-    const put = await Product.findByIdAndUpdate(req.params.id, req.body);
-    res.json(put);
+    // Kiểm tra sản phẩm có tồn tại hay không
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+
+    // Cập nhật sản phẩm
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true } // Trả về dữ liệu đã cập nhật
+    );
+
+    res.json(updatedProduct);
   } catch (error) {
     res.status(400).json({
       message: "Không Có Dữ Liệu",
